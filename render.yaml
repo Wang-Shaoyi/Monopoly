@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: woodbox
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: npm install --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/meta
+    envVars:
+      - key: NODE_ENV
+        value: production
+    domains:
+      - monopoly.shaoyiw.com
