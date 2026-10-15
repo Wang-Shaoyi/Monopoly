@@ -2,8 +2,8 @@ import type { Card } from './types.ts'
 
 export const CARD_LIST: Card[] = [
   { id: 'c1', deck: 'chance', text: '走到起点，把工资领了。', effect: { type: 'goto', space: 0 } },
-  { id: 'c2', deck: 'chance', text: '走到青岛。路过起点的话，工资照领。', effect: { type: 'goto', space: 24 } },
-  { id: 'c3', deck: 'chance', text: '走到湘潭。路过起点的话，工资照领。', effect: { type: 'goto', space: 12 } },
+  { id: 'c2', deck: 'chance', text: '走到杭州。路过起点的话，工资照领。', effect: { type: 'goto', space: 24 } },
+  { id: 'c3', deck: 'chance', text: '走到攀枝花。路过起点的话，工资照领。', effect: { type: 'goto', space: 12 } },
   {
     id: 'c4',
     deck: 'chance',
@@ -28,7 +28,7 @@ export const CARD_LIST: Card[] = [
   { id: 'c10', deck: 'chance', text: '直接进监狱。不经过起点，也不发工资。', effect: { type: 'jail' } },
   { id: 'c11', deck: 'chance', text: '房子该修了。每栋 $25，旅馆每座 $100。', effect: { type: 'repairs', house: 25, hotel: 100 } },
   { id: 'c12', deck: 'chance', text: '缴 $15 的税。', effect: { type: 'money', amount: -15 } },
-  { id: 'c13', deck: 'chance', text: '走到北京南站。路过起点就领工资。', effect: { type: 'goto', space: 5 } },
+  { id: 'c13', deck: 'chance', text: '走到合肥南站。路过起点就领工资。', effect: { type: 'goto', space: 5 } },
   { id: 'c14', deck: 'chance', text: '走到上海。', effect: { type: 'goto', space: 39 } },
   { id: 'c15', deck: 'chance', text: '你当了街坊主席，给在座每人 $50。', effect: { type: 'pay-each', amount: 50 } },
   { id: 'c16', deck: 'chance', text: '建筑贷款到期，领 $150。', effect: { type: 'money', amount: 150 } },
