@@ -39,7 +39,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   font-family: var(--serif);
   font-size: 22px;
   font-weight: 680;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.02em;
 }
 .brand-lockup span, .top-meta em, .eyebrow, .quiet, .bankline, .hint {
   color: #6e6256;
@@ -212,8 +212,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   top: 42%;
   transform: translate(-50%, -50%) rotate(-18deg);
   font-family: var(--serif);
-  font-size: 56px;
-  letter-spacing: 0.16em;
+  font-size: 36px;
+  letter-spacing: 0.08em;
   color: rgba(246, 240, 230, 0.13);
   pointer-events: none;
   white-space: nowrap;

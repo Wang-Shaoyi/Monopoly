@@ -55,8 +55,8 @@ export function characterById(id: string | null | undefined): Character | undefi
   return CHARACTERS.find((c) => c.id === id)
 }
 
-export function characterTitle(character: Pick<Character, 'name' | 'english'>) {
-  return `${character.name} ${character.english}`
+export function characterTitle(character: Pick<Character, 'english'>) {
+  return character.english
 }
 
 export function isCharacterId(id: string): id is CharacterId {

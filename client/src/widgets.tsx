@@ -222,11 +222,8 @@ export function Drawer({
             >
               <Avatar id={character.id} size={46} />
               <span>
-                <strong>{character.name}</strong>
-                <em>
-                  {character.english}
-                  {mode === 'status' && player ? ` · ${usd(player.money)}` : seat ? ` · ${seat.name}` : ''}
-                </em>
+                <strong>{character.english}</strong>
+                {mode === 'status' && player ? <em>{usd(player.money)}</em> : seat ? <em>{seat.name}</em> : null}
               </span>
               {player?.inJail && <i className="tag">狱</i>}
               {player?.bankrupt && <i className="tag">破</i>}

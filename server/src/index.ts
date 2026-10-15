@@ -42,7 +42,7 @@ const server = createServer(app)
 const io = new Server(server, { cors: { origin: true } })
 
 app.get('/api/meta', (_req, res) => {
-  res.json({ sitePassword: Boolean(sitePassword), title: '柴果城堡大富翁' })
+  res.json({ sitePassword: Boolean(sitePassword), title: 'Private Monopoly' })
 })
 
 if (prod) {
@@ -191,6 +191,6 @@ server.listen(PORT, '0.0.0.0', () => {
     .flat()
     .filter((item) => item && item.family === 'IPv4' && !item.internal)
     .map((item) => item!.address)
-  console.log(`柴果城堡大富翁 http://localhost:${PORT}`)
+  console.log(`Private Monopoly http://localhost:${PORT}`)
   for (const ip of ips) console.log(`同一网络里的朋友可以用 http://${ip}:${prod ? PORT : 5173}`)
 })

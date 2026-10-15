@@ -123,7 +123,7 @@ export function App() {
     <div className={`shell ${screen}`}>
       <header className="topbar">
         <div className="brand-lockup">
-          <strong>柴果城堡大富翁</strong>
+          <strong>Private Monopoly</strong>
         </div>
         <div className="top-meta">
           {snap && <em>房间 {snap.code}</em>}
@@ -294,10 +294,9 @@ function HomeMenu(props: {
       }}
     >
       <p className="eyebrow">PRIVATE TABLE</p>
-      <h1>叫上朋友，开一局</h1>
       <input value={props.name} onChange={(event) => props.setName(event.target.value)} maxLength={12} placeholder="你的名字" required />
       <input value={props.roomPassword} onChange={(event) => props.setRoomPassword(event.target.value)} maxLength={32} placeholder="房间密码，没有就留空" type="password" />
-      <button className="solid big" type="submit">开一桌</button>
+      <button className="solid big" type="submit">新建房间</button>
       <div className="join-row">
         <input
           value={props.code}
@@ -309,7 +308,7 @@ function HomeMenu(props: {
           type="button"
           onClick={props.onJoin}
         >
-          进去
+          加入
         </button>
       </div>
       {props.error && <p className="error">{props.error}</p>}
