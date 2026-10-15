@@ -128,7 +128,7 @@ export function Board({
           )
         })}
         <div className="center">
-          <div className="watermark">木匣</div>
+          <div className="watermark">柴果城堡</div>
           <div className="card-backs" aria-hidden>
             <i className="back chance" />
             <i className="back deed" />

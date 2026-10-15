@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { characterById, characterTitle } from '@shared/characters.ts'
 import { SPACES, isDeed } from '@shared/board.ts'
-import type { Action, GameState, Seat, TradePack } from '@shared/types.ts'
+import type { Action, DrawState, GameState, Seat, TradePack } from '@shared/types.ts'
 import { Board, type Piece } from './Board'
 import { useFx } from './fx'
 import { useNet } from './net'
+import { sfx, unlockAudio } from './sound'
 import { Bills, Deed, DicePair, Drawer, Log, Rules, debtOf, usd } from './widgets'
 
 const EMPTY: TradePack = { money: 0, spaceIds: [], cardIds: [] }
@@ -25,6 +26,7 @@ export function App() {
   const [want, setWant] = useState<TradePack>(EMPTY)
   const [bid, setBid] = useState(10)
   const [confirmLeave, setConfirmLeave] = useState(false)
+  const phaseRef = useRef<GameState['phase'] | null>(null)
 
   const snap = net.snap
   const game = snap?.game ?? null
@@ -44,12 +46,40 @@ export function App() {
     null
 
   useEffect(() => {
+    const unlock = () => unlockAudio()
+    window.addEventListener('pointerdown', unlock)
+    window.addEventListener('keydown', unlock)
+    return () => {
+      window.removeEventListener('pointerdown', unlock)
+      window.removeEventListener('keydown', unlock)
+    }
+  }, [])
+
+  useEffect(() => {
+    const phase = game?.phase ?? null
+    if (phaseRef.current && phaseRef.current !== 'ended' && phase === 'ended') sfx.win()
+    phaseRef.current = phase
+  }, [game?.phase])
+
+  function act(action: Action) {
+    unlockAudio()
+    if (action.type === 'buy' || action.type === 'pay-debt' || action.type === 'bid' || action.type === 'jail-pay' || action.type === 'build' || action.type === 'unmortgage') {
+      sfx.coin()
+    } else if (action.type === 'sell' || action.type === 'mortgage') {
+      sfx.tap()
+    } else if (action.type === 'decline' || action.type === 'pass' || action.type === 'bankrupt') {
+      sfx.thud()
+    }
+    net.send(action)
+  }
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const tag = (event.target as HTMLElement | null)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       if ((event.key === 'r' || event.key === 'R') && yourTurn && game && !busy) {
-        if (game.phase === 'pre-roll' && !you?.inJail) net.send({ type: 'roll' })
-        if (game.phase === 'post-roll' && game.extraRoll) net.send({ type: 'roll' })
+        if (game.phase === 'pre-roll' && !you?.inJail) act({ type: 'roll' })
+        if (game.phase === 'post-roll' && game.extraRoll) act({ type: 'roll' })
       }
     }
     window.addEventListener('keydown', onKey)
@@ -93,8 +123,7 @@ export function App() {
     <div className={`shell ${screen}`}>
       <header className="topbar">
         <div className="brand-lockup">
-          <strong>木匣</strong>
-          <span>自制大富翁</span>
+          <strong>柴果城堡大富翁</strong>
         </div>
         <div className="top-meta">
           {snap && <em>房间 {snap.code}</em>}
@@ -152,7 +181,8 @@ export function App() {
                   onJoin={() => net.join(code.trim(), name.trim(), roomPassword)}
                 />
               )}
-              {screen === 'lobby' && snap && (
+              {screen === 'lobby' && snap?.draw && <DrawCeremony draw={snap.draw} />}
+              {screen === 'lobby' && snap && !snap.draw && (
                 <Lobby
                   code={snap.code}
                   youId={snap.youId}
@@ -175,11 +205,14 @@ export function App() {
                   dice={fx.dice}
                   rolling={fx.rolling}
                   card={fx.card}
+                  cardFace={fx.cardFace}
+                  cardDeck={fx.cardDeck}
+                  notice={fx.notice}
                   busy={busy}
                   error={net.error}
                   bid={bid}
                   setBid={setBid}
-                  onAction={net.send}
+                  onAction={act}
                 />
               )}
             </Board>
@@ -187,7 +220,7 @@ export function App() {
 
           {screen === 'game' && game && youId && (
             <aside className="panel right">
-              {selected !== null && <Deed spaceId={selected} game={game} youId={youId} busy={busy} onAction={net.send} />}
+              {selected !== null && <Deed spaceId={selected} game={game} youId={youId} busy={busy} onAction={act} />}
               {selected === null && <p className="hint">点一格，看地契、盖房或者抵押。</p>}
               <Portfolio game={game} youId={youId} onPick={setSelected} />
               <TradeBox
@@ -202,7 +235,7 @@ export function App() {
                 setOffer={setOffer}
                 setWant={setWant}
                 busy={busy}
-                onAction={net.send}
+                onAction={act}
               />
               {snap?.hostId === youId && (
                 <button type="button" className="text-button danger" onClick={() => net.emit('disband')}>
@@ -350,12 +383,49 @@ function Lobby(props: {
       </div>
       {props.host ? (
         <button className="solid big" type="button" disabled={!ready} onClick={props.onStart}>
-          {picked < 2 ? '就一个角色，先随便走走' : '开始'}
+          {picked < 2 ? '抽签，然后随便走走' : '抽签开局'}
         </button>
       ) : (
         <p className="quiet">等房主开始。</p>
       )}
       {props.error && <p className="error">{props.error}</p>}
+    </div>
+  )
+}
+
+function DrawCeremony({ draw }: { draw: DrawState }) {
+  const [shown, setShown] = useState(0)
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    sfx.shuffle()
+    const timers = draw.people.map((_, index) => window.setTimeout(() => {
+      sfx.reveal()
+      setShown(index + 1)
+    }, draw.revealStartMs + index * draw.revealStepMs))
+    timers.push(window.setTimeout(() => {
+      sfx.coin()
+      setReady(true)
+    }, draw.revealStartMs + draw.people.length * draw.revealStepMs))
+    return () => timers.forEach((timer) => window.clearTimeout(timer))
+  }, [draw])
+  return (
+    <div className="menu draw">
+      <p className="eyebrow">抽签</p>
+      <h1>号小的先走</h1>
+      <p className="quiet">一个人带了几个角色，会跟别人岔开轮流，不会连着走。</p>
+      <ol className="lots">
+        {draw.people.map((person, index) => {
+          const open = index < shown
+          return (
+            <li key={person.seatId} className={open ? 'open' : ''}>
+              <b>{open ? person.lot : '?'}</b>
+              <strong>{person.name}</strong>
+              <em>{open ? person.names.join('、') : '签还盖着'}</em>
+            </li>
+          )
+        })}
+      </ol>
+      {ready && <p className="order-line">顺序：{draw.order.map((item) => item.name).join(' → ')}</p>}
     </div>
   )
 }
@@ -366,6 +436,9 @@ function Center(props: {
   dice: [number, number] | null
   rolling: boolean
   card: ShownCard | null
+  cardFace: 'back' | 'open' | null
+  cardDeck: 'chance' | 'chest' | null
+  notice: string | null
   busy: boolean
   error: string | null
   bid: number
@@ -390,13 +463,20 @@ function Center(props: {
           ? `${game.players.find((p) => p.id === game.winnerId)?.name || '有人'} 赢了`
           : `轮到 ${current?.name || ''}`}
       </p>
-      {props.card && (
-        <blockquote className={`drawn ${props.card.deck}`}>
+      {props.cardFace === 'back' && (
+        <div className={`drawn is-back ${props.cardDeck || 'chance'}`} aria-hidden="true">
+          <span>{props.cardDeck === 'chest' ? '公益' : '机会'}</span>
+          <b>？</b>
+        </div>
+      )}
+      {props.card && props.cardFace !== 'back' && (
+        <blockquote className={`drawn is-open ${props.card.deck}`}>
           <span>{props.card.deck === 'chance' ? '机会' : '公益'}</span>
           {props.card.text}
         </blockquote>
       )}
-      {props.busy && <p className="quiet">骰子还在转。</p>}
+      {props.notice && <p className="landing">{props.notice}</p>}
+      {props.rolling && <p className="quiet">骰子还在转。</p>}
       {!props.busy && game.phase === 'ended' && yours === false && props.game.winnerId === youId && null}
       {!props.busy && game.phase !== 'ended' && (
         <div className="actions">

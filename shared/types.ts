@@ -232,6 +232,27 @@ export interface Seat {
   connected: boolean
 }
 
+export interface DrawPerson {
+  seatId: string
+  name: string
+  lot: number
+  names: string[]
+}
+
+export interface DrawTurn {
+  id: string
+  name: string
+  characterId: CharacterId
+}
+
+export interface DrawState {
+  people: DrawPerson[]
+  order: DrawTurn[]
+  revealStartMs: number
+  revealStepMs: number
+  holdMs: number
+}
+
 export interface Snapshot {
   rev: number
   code: string
@@ -240,6 +261,7 @@ export interface Snapshot {
   hasPassword: boolean
   seats: Seat[]
   rules: Rules
+  draw: DrawState | null
   game: GameState | null
   events: GameEvent[]
 }

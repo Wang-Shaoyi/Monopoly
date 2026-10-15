@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CHARACTERS } from '@shared/characters.ts'
+import { CHARACTERS, characterById } from '@shared/characters.ts'
 import { GROUPS, SPACES, isDeed } from '@shared/board.ts'
 import { buildIssue, computeRent, mortgageIssue, sellIssue, topDebt, unmortgageCost, unmortgageIssue } from '@shared/rules.ts'
 import type { Action, GameState, Seat, ShownCard } from '@shared/types.ts'
@@ -197,10 +197,17 @@ export function Drawer({
   onPick: (id: string) => void
 }) {
   const people = game?.players ?? []
+  const roster = mode === 'status' && game
+    ? game.order.flatMap((id) => {
+        const player = game.players.find((item) => item.id === id)
+        const character = player ? characterById(player.characterId) : undefined
+        return character ? [character] : []
+      })
+    : CHARACTERS
   return (
     <section className="drawer" aria-label="角色抽屉">
       <div className="compartments">
-        {CHARACTERS.map((character) => {
+        {roster.map((character) => {
           const seat = seats.find((item) => item.characterIds.includes(character.id))
           const player = people.find((item) => item.characterId === character.id)
           const mine = seat?.id === youId || player?.controllerId === youId

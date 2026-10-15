@@ -42,6 +42,45 @@ function assert(cond: unknown, message: string): asserts cond {
   if (!cond) throw new RuleError(message)
 }
 
+export function arrangeSeats(seats: SeatInput[], rand: () => number): {
+  seats: SeatInput[]
+  lots: { controllerId: string; lot: number; characterIds: string[] }[]
+} {
+  const byController = new Map<string, SeatInput[]>()
+  const seen: string[] = []
+  for (const seat of seats) {
+    const controllerId = seat.controllerId || seat.id
+    if (!byController.has(controllerId)) {
+      seen.push(controllerId)
+      byController.set(controllerId, [])
+    }
+    byController.get(controllerId)!.push({ ...seat, controllerId })
+  }
+  const drawn = shuffle(seen, rand)
+  const groups = new Map(drawn.map((controllerId) => [controllerId, shuffle(byController.get(controllerId)!, rand)]))
+  const queues = drawn.map((controllerId) => [...groups.get(controllerId)!])
+  const ordered: SeatInput[] = []
+  let more = true
+  while (more) {
+    more = false
+    for (const queue of queues) {
+      const next = queue.shift()
+      if (!next) continue
+      ordered.push(next)
+      more = true
+    }
+  }
+  const lotOf = new Map(drawn.map((controllerId, index) => [controllerId, index + 1]))
+  return {
+    seats: ordered,
+    lots: seen.map((controllerId) => ({
+      controllerId,
+      lot: lotOf.get(controllerId)!,
+      characterIds: groups.get(controllerId)!.map((seat) => seat.characterId),
+    })),
+  }
+}
+
 function shuffle<T>(list: T[], rand: () => number): T[] {
   const copy = [...list]
   for (let i = copy.length - 1; i > 0; i--) {

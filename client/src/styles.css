@@ -37,9 +37,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .topbar { justify-content: space-between; }
 .brand-lockup strong {
   font-family: var(--serif);
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 680;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.06em;
 }
 .brand-lockup span, .top-meta em, .eyebrow, .quiet, .bankline, .hint {
   color: #6e6256;
@@ -141,6 +141,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   font-family: var(--serif);
   font-weight: 680;
   white-space: nowrap;
+  letter-spacing: -0.04em;
 }
 .tprice, .tile em, .mark small { color: #6d6258; font-style: normal; }
 .mark b {
@@ -205,8 +206,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   top: 42%;
   transform: translate(-50%, -50%) rotate(-18deg);
   font-family: var(--serif);
-  font-size: 92px;
-  letter-spacing: 0.28em;
+  font-size: 56px;
+  letter-spacing: 0.16em;
   color: rgba(246, 240, 230, 0.13);
   pointer-events: none;
   white-space: nowrap;
@@ -245,6 +246,46 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   max-width: 8em;
   margin-left: auto;
   margin-right: auto;
+}
+.lots {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 4px 0 0;
+  padding: 0;
+}
+.lots li {
+  width: 108px;
+  min-height: 124px;
+  margin: 0;
+  padding: 12px 8px;
+  border-radius: 14px;
+  background: repeating-linear-gradient(135deg, #efe2cf 0 8px, #e4d2b4 8px 16px);
+  color: #6d5c49;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.lots li b {
+  font-family: var(--serif);
+  font-size: 32px;
+  line-height: 1;
+}
+.lots li strong, .lots li em { font-style: normal; }
+.lots li em { color: #6e6256; font-size: 12px; line-height: 1.35; }
+.lots li.open {
+  background: var(--cream);
+  color: var(--ink);
+  animation: card-turn 0.45s ease;
+}
+.order-line {
+  margin: 0;
+  font-family: var(--serif);
+  line-height: 1.5;
 }
 .center:has(.menu) .card-backs,
 .center:has(.menu) .watermark { display: none; }
@@ -312,9 +353,38 @@ input[type="checkbox"] {
   color: var(--ink);
   border-radius: 12px;
   padding: 10px 12px;
+  transform-origin: center;
 }
 .drawn span { display: block; letter-spacing: 0.16em; font-size: 12px; color: #8a5a3c; }
 .drawn.chest span { color: #3f5f86; }
+.drawn.is-back {
+  min-height: 86px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  background: repeating-linear-gradient(135deg, #efe2cf 0 10px, #e4d2b4 10px 20px);
+  animation: card-deal 0.55s ease;
+}
+.drawn.is-back b {
+  font-family: var(--serif);
+  font-size: 28px;
+  line-height: 1;
+}
+.drawn.is-open { animation: card-turn 0.48s ease; }
+.landing {
+  margin: 0;
+  text-align: center;
+  font-family: var(--serif);
+  color: #f3e2b0;
+}
+@keyframes card-deal {
+  from { transform: translateY(22px) rotate(-8deg) scale(0.84); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes card-turn {
+  from { transform: rotateY(86deg); opacity: 0.4; }
+  to { transform: none; opacity: 1; }
+}
 .actions, .auction, .trade-note { display: flex; flex-direction: column; gap: 8px; }
 .hud button:not(.solid) {
   background: transparent;

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { CARD_LIST } from '../../shared/cards.ts'
 import { SPACES } from '../../shared/board.ts'
 import { DEFAULT_RULES, type Action, type GameState } from '../../shared/types.ts'
-import { apply, createGame } from './engine.ts'
+import { apply, arrangeSeats, createGame } from './engine.ts'
 
 const seats = [
   { id: 'a', name: 'Ada', characterId: 'ada' as const, connected: true },
@@ -31,6 +31,27 @@ function test(name: string, fn: () => void) {
   passed += 1
   console.log('ok', name)
 }
+
+test('抽签后同一个人的角色会岔开', () => {
+  let n = 0
+  const rand = () => {
+    n += 1
+    return (n % 5) / 5
+  }
+  const table = [
+    { id: 'h1:pig', controllerId: 'h1', name: '柴猪 Shibagy', characterId: 'shibagy' as const, connected: true },
+    { id: 'h1:bear', controllerId: 'h1', name: '果熊 Ada', characterId: 'ada' as const, connected: true },
+    { id: 'h2:chai', controllerId: 'h2', name: '二柴 Erchai', characterId: 'erchai' as const, connected: true },
+    { id: 'h2:rabbit', controllerId: 'h2', name: '兔兔 Tutu', characterId: 'tutu' as const, connected: true },
+  ]
+  const arranged = arrangeSeats(table, rand)
+  assert.equal(arranged.seats.length, 4)
+  for (let i = 0; i < arranged.seats.length - 1; i++) {
+    assert.notEqual(arranged.seats[i]!.controllerId, arranged.seats[i + 1]!.controllerId)
+  }
+  assert.equal(new Set(arranged.lots.map((lot) => lot.lot)).size, 2)
+  assert.deepEqual(arranged.lots.map((lot) => lot.lot).sort(), [1, 2])
+})
 
 test('棋盘和牌堆是完整的', () => {
   assert.equal(SPACES.length, 40)

@@ -21,6 +21,8 @@ import {
   sanitizeName,
   selectCharacter,
   setRules,
+  commitDraw,
+  roomByCode,
   snapshot,
   start,
   swept,
@@ -40,7 +42,7 @@ const server = createServer(app)
 const io = new Server(server, { cors: { origin: true } })
 
 app.get('/api/meta', (_req, res) => {
-  res.json({ sitePassword: Boolean(sitePassword), title: '木匣' })
+  res.json({ sitePassword: Boolean(sitePassword), title: '柴果城堡大富翁' })
 })
 
 if (prod) {
@@ -147,6 +149,14 @@ io.on('connection', (socket) => {
     const error = start(loc.room, loc.person)
     if (error) return problem(socket.id, error)
     send(loc.room)
+    const code = loc.room.code
+    const hold = loc.room.draw?.state.holdMs ?? 0
+    if (!hold) return
+    setTimeout(() => {
+      const room = roomByCode(code)
+      if (!room || !commitDraw(room)) return
+      send(room)
+    }, hold)
   })
 
   socket.on('action', (body: Action) => {
@@ -181,6 +191,6 @@ server.listen(PORT, '0.0.0.0', () => {
     .flat()
     .filter((item) => item && item.family === 'IPv4' && !item.internal)
     .map((item) => item!.address)
-  console.log(`木匣服务器 http://localhost:${PORT}`)
+  console.log(`柴果城堡大富翁 http://localhost:${PORT}`)
   for (const ip of ips) console.log(`同一网络里的朋友可以用 http://${ip}:${prod ? PORT : 5173}`)
 })
