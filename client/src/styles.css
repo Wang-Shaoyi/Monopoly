@@ -171,8 +171,8 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   position: absolute;
   display: flex;
   flex-wrap: wrap;
-  gap: 1px;
-  max-width: 70%;
+  gap: 2px;
+  max-width: 88%;
   pointer-events: none;
 }
 .tile.bottom .pieces { top: 2px; left: 2px; }
@@ -180,15 +180,21 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .tile.left .pieces { right: 2px; bottom: 2px; }
 .tile.right .pieces { left: 2px; bottom: 2px; }
 .piece {
-  width: 16px;
-  height: 16px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 0 0 2px var(--ring, #fff);
+  background: transparent;
+  box-shadow: 0 0 0 2px #fff, 0 1px 2px rgba(42, 36, 31, 0.28);
 }
 .piece.is-turn { box-shadow: 0 0 0 2px #fff7ea, 0 0 0 4px var(--ring, #e2b657); }
-.avatar { display: block; width: 100%; height: 100%; }
+.avatar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
 
 .center {
   grid-column: 2 / 11;

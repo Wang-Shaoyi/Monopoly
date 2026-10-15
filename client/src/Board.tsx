@@ -119,7 +119,7 @@ export function Board({
                       ].filter(Boolean).join(' ')}
                       style={{ ['--ring' as string]: ring(piece.characterId) }}
                     >
-                      <Avatar id={piece.characterId} size={18} />
+                      <Avatar id={piece.characterId} size={30} />
                     </span>
                   ))}
                 </span>
