@@ -5,6 +5,22 @@ export function isTradeWindow(game: GameState): boolean {
   return game.phase === 'post-roll' && !game.extraRoll
 }
 
+export function purchasePrice(state: GameState, playerId: string, spaceId: number): number {
+  const space = SPACES[spaceId]
+  if (!space?.price) return 0
+  const buyer = state.players.find((p) => p.id === playerId)
+  if (buyer?.characterId !== 'ginger' || !space.group) return space.price
+  const prices = spacesInGroup(space.group).map((s) => s.price!)
+  return space.price === Math.max(...prices) ? Math.min(...prices) : space.price
+}
+
+export function rentForPlayer(state: GameState, spaceId: number, diceSum: number, playerId: string): number {
+  const rent = computeRent(state, spaceId, diceSum)
+  const payer = state.players.find((p) => p.id === playerId)
+  return payer?.characterId === 'erchai' && state.plots[spaceId]?.houses === 5
+    ? Math.ceil(rent * 0.7) : rent
+}
+
 export function interestOf(mortgage: number): number {
   return Math.ceil(mortgage / 10)
 }

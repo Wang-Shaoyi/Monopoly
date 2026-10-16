@@ -45,6 +45,8 @@ export interface Character {
   english: string
   color: string
   ink: string
+  skill: string
+  skillEn: string
   blurb: string
 }
 
@@ -108,6 +110,7 @@ export interface GamePlayer {
   heldCards: HeldCard[]
   bankrupt: boolean
   connected: boolean
+  hopUses: number
 }
 
 export type Creditor = { type: 'bank' } | { type: 'player'; id: string }
@@ -122,10 +125,11 @@ export interface DebtStep {
 
 export type Step =
   | DebtStep
-  | { type: 'forward'; steps: number; collectGo: boolean }
+  | { type: 'forward'; steps: number; collectGo: boolean; allowHop?: boolean }
   | { type: 'advance'; target: number; collectGo: boolean }
   | { type: 'back'; steps: number }
-  | { type: 'resolve-space' }
+  | { type: 'resolve-space'; meetingsChecked?: boolean }
+  | { type: 'hop-choice' }
   | { type: 'draw'; deck: Deck }
   | { type: 'go-jail' }
   | { type: 'next-turn' }
@@ -169,7 +173,7 @@ export interface LogLine {
   at: number
 }
 
-export type Phase = 'pre-roll' | 'post-roll' | 'buy' | 'auction' | 'debt' | 'ended' | 'resolving'
+export type Phase = 'pre-roll' | 'post-roll' | 'buy' | 'auction' | 'debt' | 'ended' | 'resolving' | 'hop'
 
 export interface GameState {
   players: GamePlayer[]
@@ -210,6 +214,8 @@ export type GameEvent =
 
 export type Action =
   | { type: 'roll' }
+  | { type: 'hop' }
+  | { type: 'skip-hop' }
   | { type: 'buy' }
   | { type: 'decline' }
   | { type: 'bid'; amount: number }

@@ -218,8 +218,9 @@ export function Drawer({
           const mine = seat?.id === youId || player?.controllerId === youId
           const takenByOther = Boolean((seat && seat.id !== youId) || (player && player.controllerId !== youId))
           return (
+            <div className="character-slot" key={character.id}>
             <button
-              key={character.id}
+              aria-describedby={`skill-${character.id}`}
               type="button"
               className={['compartment', mine ? 'mine' : '', (seat || player) ? 'taken' : '', player?.id === game?.currentId && game?.phase !== 'ended' ? 'turn' : '', player?.bankrupt ? 'broke' : ''].filter(Boolean).join(' ')}
               disabled={mode !== 'pick' || takenByOther}
@@ -234,6 +235,11 @@ export function Drawer({
               {player?.bankrupt && <i className="tag">{tx('破', 'Out')}</i>}
               {!player?.connected && player && !player.bankrupt && <i className="tag">{tx('离', 'Away')}</i>}
             </button>
+            <aside className="skill-tooltip" role="tooltip" id={`skill-${character.id}`}>
+              <strong>{character.english} · {tx('角色技能', 'Character skill')}</strong>
+              <p>{tx(character.skill, character.skillEn)}</p>
+            </aside>
+            </div>
           )
         })}
       </div>
@@ -268,6 +274,7 @@ export function Rules({ onClose }: { onClose: () => void }) {
           <button type="button" onClick={onClose}>{tx('关闭', 'Close')}</button>
         </header>
         <h2 id="rules-title">{tx('怎么玩', 'How to play')}</h2>
+        <p>{tx('每个角色都有专属技能，悬停角色头像可查看说明。Tutu 在移动后、地块结算前可选择是否向前跳一格，全局限两次；不发动则保留次数。', 'Every character has a unique skill. Hover over a character to learn more. Tutu may hop one extra space after moving, before resolving her space, up to twice per game. Skipping preserves her uses.')}</p>
         <p>{tx('停在尚无业主的房产上时，可以按标价购买。集齐同一颜色组，且整组均未抵押时，未建房地块的租金翻倍。建房须在同组地块间均衡进行；已有四栋房屋后，再支付一次建造费用，即可换建一座旅馆。', 'Land on an unowned property to buy it at the listed price. Owning a full color group doubles the rent on its unimproved properties, provided none in the group are mortgaged. Build evenly across the group. Once a property has four houses, pay the building cost once more to replace them with a hotel.')}</p>
         <p>{tx(`拥有 1、2、3、4 座${mapId === 'usa' ? '机场' : '火车站'}时，租金分别为 $25、$50、$100、$200。拥有一家公用事业时，租金为骰子点数总和的 4 倍；两家都拥有时为 10 倍。已抵押的房产不收租，赎回需支付抵押金额及其 10% 的利息。`, `Rent is $25, $50, $100, or $200 when you own 1, 2, 3, or 4 ${mapId === 'usa' ? 'airports' : 'railway stations'}. Utility rent is 4 times the dice total if you own one, or 10 times the total if you own both. Mortgaged properties collect no rent. To unmortgage a property, repay the mortgage plus 10% interest.`)}</p>
         <p>{tx('两枚骰子点数相同时，移动并处理地块后可以再掷一次；同一回合连续三次点数相同，则直接入狱。入狱后，可支付 $50、使用免费出狱卡，或尝试掷出相同点数。第三次尝试仍未成功时，须支付 $50，再按本次点数移动。通过掷骰出狱后，本回合不再获得额外掷骰机会。', 'Roll doubles to move, resolve your space, and roll again. Three consecutive doubles in one turn send you directly to Jail. To get out, pay $50 bail, use a Get Out of Jail Free card, or try to roll doubles. If your third attempt fails, pay $50 and move by that roll. Rolling to leave Jail never gives you an extra roll that turn.')}</p>

@@ -3,6 +3,8 @@ import { spacesForMap } from './board.ts'
 import type { Lang } from './board.ts'
 
 const EXACT: Record<string, string> = {
+  "Shibagy的捣蛋费": "Shibagy's mischief fee",
+  "当前无法发动跳跃技能": "Tutu cannot hop right now.",
   "找不到这位玩家": "Player not found",
   "你已经破产了": "You are bankrupt",
   "不能建造": "You can’t build here.",

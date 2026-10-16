@@ -26,7 +26,7 @@ const rooms = new Map<string, Room>()
 const sockets = new Map<string, { code: string; playerId: string }>()
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 const PUBLIC = new Set<Action['type']>([
-  'roll', 'buy', 'decline', 'bid', 'pass', 'end-turn', 'build', 'sell', 'mortgage', 'unmortgage',
+  'hop', 'skip-hop', 'roll', 'buy', 'decline', 'bid', 'pass', 'end-turn', 'build', 'sell', 'mortgage', 'unmortgage',
   'jail-pay', 'jail-card', 'jail-roll', 'pay-debt', 'bankrupt', 'trade', 'respond-trade', 'cancel-trade', 'skip-offline',
 ])
 
@@ -51,6 +51,7 @@ export function initStore(dataFile: string) {
       if (room.game) {
         for (const player of room.game.players) {
           if (!player.controllerId) player.controllerId = player.id
+          player.hopUses ??= player.characterId === 'tutu' ? 2 : 0
           player.connected = false
         }
       }

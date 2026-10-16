@@ -3,7 +3,8 @@ import { translate } from '../../shared/phrases.ts'
 import { RAILROAD_IDS, SPACES, spacesForMap, UTILITY_IDS, isDeed } from '../../shared/board.ts'
 import {
   buildIssue,
-  computeRent,
+  purchasePrice,
+  rentForPlayer,
   interestOf,
   isTradeWindow,
   mortgageIssue,
@@ -152,7 +153,7 @@ function maybeWin(state: GameState): boolean {
 
 function enterIdle(state: GameState) {
   if (maybeWin(state)) return
-  if (state.phase === 'pre-roll' || state.phase === 'buy' || state.phase === 'auction' || state.phase === 'debt' || state.phase === 'ended') {
+  if (state.phase === 'pre-roll' || state.phase === 'buy' || state.phase === 'auction' || state.phase === 'debt' || state.phase === 'hop' || state.phase === 'ended') {
     return
   }
   const who = must(state, state.currentId)
@@ -268,6 +269,23 @@ function drawFrom(state: GameState, deck: 'chance' | 'chest', rand: () => number
   return pile.shift() ?? null
 }
 
+function offerHop(state: GameState, player: GamePlayer) {
+  if (player.characterId === 'tutu' && player.hopUses > 0 && !player.inJail) {
+    state.stack.unshift({ type: 'hop-choice' })
+  }
+}
+
+function meetingDebts(state: GameState): DebtStep[] {
+  const me = must(state, state.currentId)
+  if (me.position === 10 || me.inJail || me.bankrupt) return []
+  const shibagy = state.players.find((p) => p.characterId === 'shibagy' && !p.bankrupt && !p.inJail && p.position === me.position)
+  if (!shibagy) return []
+  const payers = me.id === shibagy.id
+    ? others(state, me.id).filter((p) => !p.inJail && p.position === me.position)
+    : [me]
+  return payers.map((p) => debt(p.id, 20, { type: 'player', id: shibagy.id }, 'Shibagy的捣蛋费'))
+}
+
 function perform(state: GameState, step: Step, events: GameEvent[], rand: () => number): boolean {
   const player = must(state, state.currentId)
   switch (step.type) {
@@ -281,7 +299,10 @@ function perform(state: GameState, step: Step, events: GameEvent[], rand: () => 
           log(state, `${player.name} 经过起点，领了 $${state.rules.salary}`, `${player.name} passed GO and collected $${state.rules.salary}`)
         }
       }
-      if (path.length) events.push({ type: 'move', playerId: player.id, path })
+      if (path.length) {
+        events.push({ type: 'move', playerId: player.id, path })
+        if (step.allowHop !== false) offerHop(state, player)
+      }
       return false
     }
     case 'advance': {
@@ -295,7 +316,10 @@ function perform(state: GameState, step: Step, events: GameEvent[], rand: () => 
           log(state, `${player.name} 经过起点，领了 $${state.rules.salary}`, `${player.name} passed GO and collected $${state.rules.salary}`)
         }
       }
-      if (path.length) events.push({ type: 'move', playerId: player.id, path, jump: true })
+      if (path.length) {
+        events.push({ type: 'move', playerId: player.id, path, jump: true })
+        offerHop(state, player)
+      }
       return false
     }
     case 'back': {
@@ -304,11 +328,26 @@ function perform(state: GameState, step: Step, events: GameEvent[], rand: () => 
         player.position = (player.position + 39) % 40
         path.push(player.position)
       }
-      if (path.length) events.push({ type: 'move', playerId: player.id, path })
+      if (path.length) {
+        events.push({ type: 'move', playerId: player.id, path })
+        offerHop(state, player)
+      }
       return false
     }
-    case 'resolve-space':
+    case 'hop-choice':
+      if (player.characterId !== 'tutu' || player.hopUses <= 0 || player.inJail) return false
+      state.phase = 'hop'
+      return true
+    case 'resolve-space': {
+      if (!step.meetingsChecked) {
+        const meetings = meetingDebts(state)
+        if (meetings.length) {
+          state.stack.unshift(...meetings, { type: 'resolve-space', meetingsChecked: true })
+          return false
+        }
+      }
       return resolveSpace(state, events, rand)
+    }
     case 'draw':
       return drawCard(state, step.deck, events, rand)
     case 'go-jail':
@@ -377,6 +416,10 @@ function resolveSpace(state: GameState, events: GameEvent[], rand: () => number)
     return false
   }
   if (space.type === 'tax') {
+    if (player.characterId === 'ada' && space.id === 38) {
+      log(state, `${player.name} 喜欢购物，免缴奢侈税`, `${player.name} loves shopping: Luxury Tax waived`)
+      return false
+    }
     state.stack.unshift(debt(player.id, space.tax || 0, BANK, space.name))
     return false
   }
@@ -420,7 +463,7 @@ function resolveSpace(state: GameState, events: GameEvent[], rand: () => number)
     )
   } else {
     const diceSum = state.lastDice ? state.lastDice[0] + state.lastDice[1] : 7
-    rent = computeRent(state, space.id, diceSum)
+    rent = rentForPlayer(state, space.id, diceSum, player.id)
     if (mod === 'rail2') rent *= 2
   }
   if (rent > 0) {
@@ -650,7 +693,7 @@ function continueAfterRemoval(state: GameState, _debtorId: string, events: GameE
     state.phase = 'debt'
     return
   }
-  if (state.phase === 'auction' || state.phase === 'buy' || state.phase === 'pre-roll' || state.phase === 'post-roll') return
+  if (state.phase === 'auction' || state.phase === 'buy' || state.phase === 'pre-roll' || state.phase === 'post-roll' || state.phase === 'hop') return
   state.phase = 'resolving'
   runStack(state, events, rand)
 }
@@ -846,6 +889,21 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       state.debugDice.push(action.dice[0], action.dice[1])
       actionRoll(state, playerId, events, rand)
       return
+    case 'hop':
+    case 'skip-hop': {
+      assertCurrent(state, playerId)
+      const who = must(state, playerId)
+      assert(state.phase === 'hop' && who.characterId === 'tutu' && who.hopUses > 0, '当前无法发动跳跃技能')
+      if (action.type === 'hop') {
+        who.hopUses -= 1
+        state.landingMod = null
+        state.stack.unshift({ type: 'forward', steps: 1, collectGo: true, allowHop: false })
+        log(state, `${who.name} 向前跳一格（剩余 ${who.hopUses} 次）`, `${who.name} hopped one space forward (${who.hopUses} uses left)`)
+      }
+      state.phase = 'resolving'
+      runStack(state, events, rand)
+      return
+    }
     case 'roll':
       actionRoll(state, playerId, events, rand)
       return
@@ -887,12 +945,13 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       const player = must(state, playerId)
       assert(isDeed(space) && space.price, '该地块不可购买')
       assert(!plot.ownerId, '该房产已有业主')
-      assert(player.money >= space.price, '现金不足，可先抵押房产再购买')
-      player.money -= space.price
+      const cost = purchasePrice(state, playerId, space.id)
+      assert(player.money >= cost, '现金不足，可先抵押房产再购买')
+      player.money -= cost
       plot.ownerId = player.id
       plot.houses = 0
       plot.mortgaged = false
-      log(state, `${player.name} 以 $${space.price} 买下${space.name}`, `${player.name} bought ${space.en} for $${space.price}`)
+      log(state, `${player.name} 以 $${cost} 买下${space.name}`, `${player.name} bought ${space.en} for $${cost}`)
       state.buySpaceId = null
       state.phase = 'resolving'
       runStack(state, events, rand)
@@ -1078,6 +1137,11 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       acceptTrade(state)
       return
     case 'skip-offline': {
+      if (state.phase === 'hop' && !must(state, state.currentId).connected) {
+        assert(must(state, playerId).connected, '当前无法代为操作')
+        dispatch(state, state.currentId, { type: 'skip-hop' }, events, rand)
+        return
+      }
       assert(must(state, playerId).connected && !must(state, playerId).bankrupt, '当前无法代为操作')
       if (state.phase === 'buy' && !must(state, state.currentId).connected) {
         dispatch(state, state.currentId, { type: 'decline' }, events, rand)
@@ -1128,7 +1192,8 @@ export function createGame(seats: SeatInput[], rules: Rules, rand: () => number 
       position: 0,
       inJail: false,
       jailTurns: 0,
-      heldCards: [],
+      heldCards: seat.characterId === 'orangie' ? [{ id: 'c8', deck: 'chance' }, { id: 'h5', deck: 'chest' }] : [],
+      hopUses: seat.characterId === 'tutu' ? 2 : 0,
       bankrupt: false,
       connected: seat.connected,
     })),
@@ -1159,6 +1224,10 @@ export function createGame(seats: SeatInput[], rules: Rules, rand: () => number 
     debugDice: [],
     cardChain: 0,
     buySpaceId: null,
+  }
+  if (state.players.some((p) => p.characterId === 'orangie')) {
+    state.chance = state.chance.filter((id) => id !== 'c8')
+    state.chest = state.chest.filter((id) => id !== 'h5')
   }
   const names = state.players.map((p) => p.name).join('、')
   const namesEn = state.players.map((p) => p.name).join(', ')

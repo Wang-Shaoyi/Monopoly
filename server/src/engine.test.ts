@@ -1,3 +1,4 @@
+import { purchasePrice, rentForPlayer } from '../../shared/rules.ts'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -6,7 +7,7 @@ import { translate } from '../../shared/phrases.ts'
 import assert from 'node:assert/strict'
 import { CARD_LIST, cardForMap } from '../../shared/cards.ts'
 import { SPACES, spacesForMap, spaceLabel, propertyRegion } from '../../shared/board.ts'
-import { DEFAULT_RULES, type Action, type GameState } from '../../shared/types.ts'
+import { DEFAULT_RULES, type Action, type GameState, type CharacterId } from '../../shared/types.ts'
 import { apply, arrangeSeats, createGame } from './engine.ts'
 
 const seats = [
@@ -72,6 +73,7 @@ test('同色组空地收双倍租金，经过起点领薪', () => {
   state = ok(state, 'a', { type: 'debug-end' })
   state = ok(state, 'b', { type: 'debug-place', position: 39 })
   state = ok(state, 'b', { type: 'debug-roll', dice: [1, 1] })
+  state = ok(state, 'b', { type: 'skip-hop' })
   const ada = state.players.find((p) => p.id === 'a')!
   const tutu = state.players.find((p) => p.id === 'b')!
   assert.equal(tutu.position, 1)
@@ -358,6 +360,225 @@ test('过期交易不可成交，取消交易后仍可继续结束回合', () =>
   assert.equal(state.trade, null)
   state = ok(state, 'a', { type: 'end-turn' })
   assert.equal(state.currentId, 'b')
+})
+
+
+function skillGame(...ids: CharacterId[]) {
+  return createGame(ids.map((characterId, i) => ({ id: String(i), name: characterId, characterId, connected: true })), DEFAULT_RULES, () => 0.25)
+}
+
+test('Orangie 开局持有两张出狱卡，牌堆不重复，使用后归还', () => {
+  let state = skillGame('orangie', 'ada')
+  assert.deepEqual(state.players[0]!.heldCards.map((c) => c.id), ['c8', 'h5'])
+  assert.ok(!state.chance.includes('c8') && !state.chest.includes('h5'))
+  assert.equal(state.chance.length + state.chest.length + state.players[0]!.heldCards.length, 32)
+  state.players[0]!.inJail = true
+  state = ok(state, '0', { type: 'jail-card', deck: 'chance' })
+  assert.equal(state.chanceDiscard.filter((id) => id === 'c8').length, 1)
+  state.players[0]!.inJail = true
+  state = ok(state, '0', { type: 'jail-card', deck: 'chest' })
+  assert.equal(state.players[0]!.heldCards.length, 0)
+  assert.ok(state.chestDiscard.includes('h5'))
+})
+
+test('Orangie 自带的出狱卡可正常交易', () => {
+  let state = skillGame('orangie', 'ada')
+  state.phase = 'post-roll'
+  state = ok(state, '0', { type: 'trade', to: '1', offer: { money: 0, spaceIds: [], cardIds: ['c8'] }, want: { money: 0, spaceIds: [], cardIds: [] } })
+  state = ok(state, '1', { type: 'respond-trade', accept: true })
+  assert.deepEqual(state.players[0]!.heldCards.map((c) => c.id), ['h5'])
+  assert.deepEqual(state.players[1]!.heldCards.map((c) => c.id), ['c8'])
+})
+
+test('Ada 免奢侈税，但仍正常缴纳所得税', () => {
+  let state = skillGame('ada', 'ginger')
+  state.players[0]!.position = 35
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.equal(state.players[0]!.money, 1500)
+  assert.ok(state.log.some((l) => l.en?.includes('Luxury Tax waived')))
+  state = ok(state, '0', { type: 'debug-end' })
+  state = ok(state, '1', { type: 'debug-end' })
+  state.players[0]!.position = 1
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.equal(state.players[0]!.money, 1300)
+})
+
+test('Erchai 酒店租金付七折，房屋和抵押地块不受影响', () => {
+  let state = skillGame('erchai', 'ginger')
+  state.plots[39] = { ownerId: '1', houses: 5, mortgaged: false }
+  assert.equal(rentForPlayer(state, 39, 3, '0'), 1400)
+  assert.equal(rentForPlayer(state, 39, 3, '1'), 2000)
+  state.players[0]!.position = 36
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.equal(state.players[0]!.money, 100)
+  assert.equal(state.players[1]!.money, 2900)
+  state.plots[39]!.houses = 4
+  assert.equal(rentForPlayer(state, 39, 3, '0'), 1700)
+  state.plots[39]!.mortgaged = true
+  assert.equal(rentForPlayer(state, 39, 3, '0'), 0)
+})
+
+test('Ginger 各组最贵城市按最低价购买，其他地块原价', () => {
+  let state = skillGame('ginger', 'ada')
+  for (const id of [1, 3, 9, 14, 19, 24, 29, 34, 39]) {
+    const space = SPACES[id]!
+    const group = SPACES.filter((s) => s.group === space.group)
+    assert.equal(purchasePrice(state, '0', id), Math.min(...group.map((s) => s.price!)))
+    assert.equal(purchasePrice(state, '1', id), space.price)
+  }
+  assert.equal(purchasePrice(state, '0', 23), 220)
+  assert.equal(purchasePrice(state, '0', 5), 200)
+  state.players[0]!.position = 36
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  state.players[0]!.money = 350
+  state = ok(state, '0', { type: 'buy' })
+  assert.equal(state.players[0]!.money, 0)
+  assert.equal(state.plots[39]!.ownerId, '0')
+  assert.ok(state.log.at(-1)?.en?.includes('$350'))
+})
+
+test('Ginger 拍卖仍支付实际出价', () => {
+  let state = skillGame('ginger', 'ada')
+  state.players[0]!.position = 36
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  state = ok(state, '0', { type: 'decline' })
+  state = ok(state, '1', { type: 'pass' })
+  state = ok(state, '0', { type: 'bid', amount: 400 })
+  state = ok(state, '1', { type: 'pass' })
+  assert.equal(state.players[0]!.money, 1100)
+  assert.equal(state.plots[39]!.ownerId, '0')
+})
+
+test('遇到 Shibagy 立即付款，然后再结算地块', () => {
+  let state = skillGame('ada', 'shibagy')
+  state.players[1]!.position = 3
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.equal(state.players[0]!.money, 1480)
+  assert.equal(state.players[1]!.money, 1520)
+  assert.equal(state.phase, 'buy')
+  state = ok(state, '0', { type: 'buy' })
+  assert.equal(state.players[0]!.money, 1420)
+})
+
+test('Shibagy 移到其他角色格子，所有同格角色各支付一次', () => {
+  let state = skillGame('shibagy', 'ada', 'ginger')
+  state.players[1]!.position = state.players[2]!.position = 3
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.deepEqual(state.players.map((p) => p.money), [1540, 1480, 1480])
+})
+
+test('Shibagy 不对路过或监狱内相遇收费', () => {
+  let state = skillGame('ada', 'shibagy')
+  state.players[1]!.position = 1
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.deepEqual(state.players.map((p) => p.money), [1500, 1500])
+  state = skillGame('ada', 'shibagy')
+  state.players[1]!.position = 10
+  state.players[0]!.position = 7
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.deepEqual(state.players.map((p) => p.money), [1500, 1500])
+})
+
+test('Shibagy 技能欠款可筹款偿还，恢复结算时不重复收费', () => {
+  let state = skillGame('ada', 'shibagy')
+  state.players[0]!.money = 10
+  state.players[1]!.position = 3
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.equal(state.phase, 'debt')
+  assert.equal(state.players[1]!.money, 1500)
+  state = ok(state, '0', { type: 'debug-money', amount: 20 })
+  state = ok(state, '0', { type: 'pay-debt' })
+  assert.equal(state.phase, 'buy')
+  assert.equal(state.players[1]!.money, 1520)
+  assert.equal(state.players[0]!.money, 0)
+})
+
+test('Tutu 移动后选择跳跃，结算新落点而非原落点，全局只有两次', () => {
+  let state = skillGame('tutu', 'ada')
+  state.rules.auction = false
+  state.players[0]!.position = 1
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.equal(state.phase, 'hop')
+  assert.equal(state.players[0]!.position, 4)
+  assert.equal(state.players[0]!.money, 1500)
+  assert.match(fail(state, '1', { type: 'hop' }) || '', /轮到/)
+  state = ok(state, '0', { type: 'hop' })
+  assert.equal(state.players[0]!.position, 5)
+  assert.equal(state.players[0]!.hopUses, 1)
+  assert.equal(state.phase, 'buy')
+  assert.match(fail(state, '0', { type: 'hop' }) || '', /无法发动/)
+  state = ok(state, '0', { type: 'decline' })
+  state = ok(state, '0', { type: 'end-turn' })
+  state = ok(state, '1', { type: 'debug-end' })
+  state.players[0]!.position = 35
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  state = JSON.parse(JSON.stringify(state))
+  state = ok(state, '0', { type: 'hop' })
+  assert.equal(state.players[0]!.hopUses, 0)
+  assert.equal(state.players[0]!.position, 39)
+  state = ok(state, '0', { type: 'decline' })
+  state = ok(state, '0', { type: 'end-turn' })
+  state = ok(state, '1', { type: 'debug-end' })
+  state.players[0]!.position = 1
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.equal(state.phase, 'post-roll')
+  assert.equal(state.players[0]!.money, 1300)
+})
+
+test('Tutu 不发动保留次数，跨起点跳跃正常领钱', () => {
+  let state = skillGame('tutu', 'ada')
+  state.players[0]!.position = 1
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  state = ok(state, '0', { type: 'skip-hop' })
+  assert.equal(state.players[0]!.hopUses, 2)
+  assert.equal(state.players[0]!.money, 1300)
+  state = skillGame('tutu', 'ada')
+  state.players[0]!.position = 36
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  state = ok(state, '0', { type: 'hop' })
+  assert.equal(state.players[0]!.position, 0)
+  assert.equal(state.players[0]!.money, 1700)
+})
+
+test('Tutu 跳跃不会丢失双骰奖励，卡牌移动后也能决定跳跃', () => {
+  let state = skillGame('tutu', 'ada')
+  state.players[0]!.position = 18
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 1] })
+  state = ok(state, '0', { type: 'skip-hop' })
+  assert.equal(state.extraRoll, true)
+  state = skillGame('tutu', 'ada')
+  state.players[0]!.position = 4
+  state.chance = ['c2']
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  state = ok(state, '0', { type: 'skip-hop' })
+  assert.equal(state.phase, 'hop')
+  assert.equal(state.players[0]!.position, 24)
+  state = ok(state, '0', { type: 'hop' })
+  assert.equal(state.players[0]!.position, 25)
+  assert.equal(state.players[0]!.hopUses, 1)
+})
+
+
+test('Orangie 破产给银行时，初始出狱卡归还牌堆', () => {
+  let state = skillGame('orangie', 'ada', 'ginger')
+  state.players[0]!.position = 1
+  state.players[0]!.money = 0
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  state = ok(state, '0', { type: 'bankrupt' })
+  assert.ok(state.chanceDiscard.includes('c8'))
+  assert.ok(state.chestDiscard.includes('h5'))
+  assert.equal(state.players[0]!.heldCards.length, 0)
+})
+
+test('Tutu 等待跳跃时离线，其他在线玩家可跳过技能继续结算', () => {
+  let state = skillGame('tutu', 'ada')
+  state.players[0]!.position = 17
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  assert.equal(state.phase, 'hop')
+  state.players[0]!.connected = false
+  state = ok(state, '1', { type: 'skip-offline' })
+  assert.equal(state.phase, 'post-roll')
+  assert.equal(state.players[0]!.hopUses, 2)
 })
 
 console.log(`\n${passed} tests passed`)

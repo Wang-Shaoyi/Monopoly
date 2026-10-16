@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { characterById, characterTitle } from '@shared/characters.ts'
 import { isDeed, spaceLabel } from '@shared/board.ts'
-import { isTradeWindow } from '@shared/rules.ts'
+import { isTradeWindow, purchasePrice } from '@shared/rules.ts'
 import type { Action, MapId, DrawState, GameState, Seat, TradePack } from '@shared/types.ts'
 import { Board, type Piece } from './Board'
 import { Avatar } from './avatars'
@@ -470,7 +470,7 @@ function DrawCeremony({ draw }: { draw: DrawState }) {
           )
         })}
       </ol>
-      {ready && <p className="order-line">{tx('顺序：', 'Order: ')}{draw.order.map((item) => item.name).join(' → ')}</p>}
+      {ready && <p className="order-line">{tx('顺序：', 'Order: ')}{draw.order.map((item, index) => <span className="order-character" key={item.id}>{index > 0 && ' → '}<Avatar id={item.characterId} size={24} />{item.name}</span>)}</p>}
     </div>
   )
 }
@@ -501,15 +501,17 @@ function Center(props: {
   const offline = current && !current.connected
   const { tx, say, lang, spaces } = useI18n()
   const space = spaces[game.buySpaceId ?? auction?.spaceId ?? -1]
+  const buyCost = space ? purchasePrice(game, game.currentId, space.id) : 0
   const place = spaceLabel(space, lang)
   const placeShort = spaceLabel(space, lang, true)
   return (
     <div className="hud">
       <DicePair dice={props.dice} rolling={props.rolling} />
       <p className="turn-line">
-        {game.phase === 'ended'
+        <Avatar id={(game.phase === 'ended' ? game.players.find((p) => p.id === game.winnerId) : current)?.characterId ?? null} size={28} />
+        <span>{game.phase === 'ended'
           ? tx(`${game.players.find((p) => p.id === game.winnerId)?.name || '有人'} 赢了`, `${game.players.find((p) => p.id === game.winnerId)?.name || 'Someone'} wins`)
-          : tx(`轮到 ${current?.name || ''}`, `${current?.name || ''}'s turn`)}
+          : tx(`轮到 ${current?.name || ''}`, `${current?.name || ''}'s turn`)}</span>
       </p>
       {props.cardFace === 'back' && (
         <div className={`drawn is-back ${props.cardDeck || 'chance'}`} aria-hidden="true">
@@ -529,6 +531,13 @@ function Center(props: {
       {!props.busy && game.phase === 'ended' && yours === false && props.game.winnerId === youId && null}
       {!props.busy && game.phase !== 'ended' && (
         <div className="actions">
+          {yours && game.phase === 'hop' && (
+            <div className="hop-choice">
+              <p>{tx(`Tutu 可以再向前跳一格，剩余 ${you?.hopUses ?? 0} 次。`, `Tutu can hop one more space. ${you?.hopUses ?? 0} uses left.`)}</p>
+              <button className="solid" type="button" onClick={() => props.onAction({ type: 'hop' })}>{tx('发动技能：向前跳一格', 'Use skill: hop forward')}</button>
+              <button type="button" onClick={() => props.onAction({ type: 'skip-hop' })}>{tx('留在这里，保留技能', 'Stay here and save the skill')}</button>
+            </div>
+          )}
           {yours && game.phase === 'pre-roll' && you?.inJail && (
             <>
               <button className="solid" type="button" onClick={() => props.onAction({ type: 'jail-pay' })}>{tx('支付 $50 出狱', 'Pay $50 bail')}</button>
@@ -550,8 +559,8 @@ function Center(props: {
           )}
           {yours && game.phase === 'buy' && space && (
             <>
-              <button className="solid" type="button" disabled={(you?.money || 0) < (space.price || 0)} onClick={() => props.onAction({ type: 'buy' })}>
-                {tx(`花 ${usd(space.price || 0)} 买下${placeShort}`, `Buy ${placeShort} for ${usd(space.price || 0)}`)}
+              <button className="solid" type="button" disabled={(you?.money || 0) < buyCost} onClick={() => props.onAction({ type: 'buy' })}>
+                {tx(`花 ${usd(buyCost)} 买下${placeShort}`, `Buy ${placeShort} for ${usd(buyCost)}`)}
               </button>
               <button type="button" onClick={() => props.onAction({ type: 'decline' })}>{game.rules.auction ? tx('放弃购买，开始拍卖', 'Auction it') : tx('放弃购买', 'Pass')}</button>
             </>
