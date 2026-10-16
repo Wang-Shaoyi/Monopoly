@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { io, type Socket } from 'socket.io-client'
-import type { Action, Snapshot } from '@shared/types.ts'
+import type { Action, MapId, Snapshot } from '@shared/types.ts'
 
 const SESSION = 'woodbox-session'
 const SITE = 'woodbox-site'
@@ -28,8 +28,8 @@ interface Net {
   error: string | null
   clearError: () => void
   pending: boolean
-  create: (name: string, password: string) => void
-  join: (code: string, name: string, password: string) => void
+  create: (name: string, mapId: MapId) => void
+  join: (code: string, name: string) => void
   send: (action: Action) => void
   emit: (event: string, body?: unknown) => void
   leave: () => void
@@ -66,7 +66,7 @@ export function NetProvider({ children }: { children: ReactNode }) {
       })
       .catch(() => {
         setMetaReady(true)
-        setError('服务器还没开。先在这个文件夹里运行 npm run dev。')
+        setError('暂时无法连接服务器，请稍后重试。')
       })
   }, [])
 
@@ -132,13 +132,13 @@ export function NetProvider({ children }: { children: ReactNode }) {
     error,
     clearError: () => setError(null),
     pending,
-    create: (name, password) => {
+    create: (name, mapId) => {
       setError(null)
-      socketRef.current?.emit('create', { name, password, sitePassword: siteRef.current })
+      socketRef.current?.emit('create', { name, mapId, sitePassword: siteRef.current })
     },
-    join: (code, name, password) => {
+    join: (code, name) => {
       setError(null)
-      socketRef.current?.emit('join', { code, name, password, sitePassword: siteRef.current })
+      socketRef.current?.emit('join', { code, name, sitePassword: siteRef.current })
     },
     send: (action) => {
       setPending(true)
@@ -150,6 +150,8 @@ export function NetProvider({ children }: { children: ReactNode }) {
       socketRef.current?.emit(event, body)
     },
     leave: () => {
+      setPending(false)
+      setError(null)
       localStorage.removeItem(SESSION)
       setSnap(null)
       socketRef.current?.emit('leave')

@@ -1,6 +1,6 @@
 import ada from './assets/avatars/ada.png'
 import erchai from './assets/avatars/erchai.png'
-import ginger from './assets/avatars/ginger.png'
+import ginger from './assets/avatars/ginger-v2.png'
 import orangie from './assets/avatars/orangie.png'
 import shibagy from './assets/avatars/shibagy.png'
 import tutu from './assets/avatars/tutu.png'

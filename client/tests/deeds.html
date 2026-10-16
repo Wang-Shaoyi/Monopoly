@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>地契地区名称预览</title></head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      import { createElement as h } from 'react'
+      import { createRoot } from 'react-dom/client'
+      import { Deed } from '../src/widgets.tsx'
+      import { LangProvider, BoardMapProvider, useI18n } from '../src/locale.tsx'
+      import { createGame } from '../../server/src/engine.ts'
+      import { DEFAULT_RULES } from '../../shared/types.ts'
+      import '../src/styles.css'
+      const game = createGame([{ id: 'preview', name: 'Preview', characterId: 'ada', connected: true }], DEFAULT_RULES)
+      function Preview() {
+        const { tx, toggle } = useI18n()
+        return h('main', { style: { padding: 16, maxWidth: 420, margin: 'auto' } },
+          h('button', { onClick: toggle, style: { marginBottom: 16 } }, tx('EN', '中文')),
+          ...[['china', 39], ['usa', 37]].map(([mapId, spaceId]) => h('section', { key: mapId, style: { marginBottom: 20 } },
+            h('p', null, mapId === 'china' ? tx('中国地图', 'China map') : tx('美国地图', 'United States map')),
+            h(BoardMapProvider, { value: mapId }, h(Deed, { spaceId, game, youId: '', busy: false, onAction: () => {} })),
+          )),
+        )
+      }
+      createRoot(document.getElementById('root')).render(h(LangProvider, null, h(Preview)))
+    </script>
+  </body>
+</html>

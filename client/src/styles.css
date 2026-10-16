@@ -84,6 +84,9 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   place-items: center;
 }
 .board {
+  container-type: inline-size;
+  --icon-edge-offset: 0px;
+  --tile-icon-scale: 1.5;
   width: min(100%, calc(100dvh - 230px), 920px);
   aspect-ratio: 1;
   padding: 16px;
@@ -96,6 +99,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
     inset 0 0 0 11px #6d5d50;
 }
 .grid {
+  isolation: isolate;
   height: 100%;
   display: grid;
   grid-template-columns: 1.45fr repeat(9, 1fr) 1.45fr;
@@ -111,7 +115,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   min-width: 0;
   min-height: 0;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
   border: 0;
   background: var(--cream);
   color: var(--ink);
@@ -134,7 +138,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   justify-content: center;
   gap: 1px;
   padding: 2px;
-  font-size: 10px;
+  font-size: clamp(7px, 2cqw, 10px);
   line-height: 1.15;
 }
 .tname, .corner-go strong, .corner-jail strong, .corner-park strong, .corner-gojail strong {
@@ -143,13 +147,53 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   white-space: nowrap;
   letter-spacing: -0.04em;
 }
-.tname.is-long { font-size: 8px; letter-spacing: -0.06em; }
+.tname.is-long { font-size: clamp(6px, 1.7cqw, 8px); letter-spacing: -0.06em; white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
+.tname { white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
 .tprice, .tile em, .mark small { color: #6d6258; font-style: normal; }
 .mark b {
   font-family: var(--serif);
   font-size: 1.3em;
 }
-.tile.corner .tile-body { font-size: 13px; }
+.tile.corner .tile-body { font-size: clamp(7px, 2cqw, 11px); }
+.corner-go, .corner-jail, .corner-park, .corner-gojail { display: flex; flex-direction: column; align-items: center; max-width: 100%; line-height: 1.1; }
+.tile-icon {
+  position: absolute;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+/* City and transport silhouettes sit across the outside edge, clear of labels and tokens. */
+.tile.edge-icon .tile-icon {
+  width: 70%;
+  height: 52%;
+  max-width: 44px;
+  max-height: 44px;
+}
+.tile.edge-icon.bottom .tile-icon { left: 50%; bottom: calc(-1 * var(--icon-edge-offset)); transform: translate(-50%, 50%) scale(var(--tile-icon-scale)); }
+.tile.edge-icon.top .tile-icon { left: 50%; top: calc(-1 * var(--icon-edge-offset)); transform: translate(-50%, -50%) scale(var(--tile-icon-scale)); }
+.tile.edge-icon.left .tile-icon,
+.tile.edge-icon.right .tile-icon { width: 52%; height: 70%; top: 50%; }
+.tile.edge-icon.left .tile-icon { left: calc(-1 * var(--icon-edge-offset)); transform: translate(-50%, -50%) rotate(-90deg) scale(var(--tile-icon-scale)); }
+.tile.edge-icon.right .tile-icon { right: calc(-1 * var(--icon-edge-offset)); transform: translate(50%, -50%) rotate(90deg) scale(var(--tile-icon-scale)); }
+.board[data-map="usa"] .tile.edge-icon.right .tile-icon { right: calc(-1 * var(--icon-edge-offset) - 16%); }
+/* Utilities and action spaces keep their art within the tile. */
+.tile.has-icon:not(.edge-icon) .tile-icon {
+  width: 48%;
+  height: 43%;
+  left: 50%;
+  top: 8%;
+  transform: translateX(-50%) scale(var(--tile-icon-scale));
+}
+.tile.has-icon:not(.edge-icon) .tile-body { justify-content: flex-end; padding-bottom: 9%; }
+.tile.corner.has-icon .tile-icon { width: 48%; height: 44%; top: 6%; }
+.tile.corner.has-icon .tile-body { padding-bottom: 8%; }
+.tile.has-icon.left:not(.edge-icon) .tile-icon,
+.tile.has-icon.right:not(.edge-icon) .tile-icon { width: 33%; height: 68%; top: 50%; left: 11.5%; transform: translateY(-50%) scale(var(--tile-icon-scale)); }
+.tile.has-icon.left:not(.edge-icon) .tile-body,
+.tile.has-icon.right:not(.edge-icon) .tile-body { padding: 2px 2px 2px 55%; justify-content: center; font-size: clamp(6px, 1.7cqw, 9px); }
+.tile-icon + .tile-body { position: relative; }
+.pieces { z-index: 3; }
 .corner-go strong { color: #9c3b32; }
 .houses, .hotel { display: flex; gap: 1px; }
 .houses i, .hotel {
@@ -432,6 +476,7 @@ input[type="checkbox"] {
 .d10 { background: #f0c7c3; }
 .d5 { background: #d5e4cc; }
 .log, .chat-log, .seat-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.panel.left .log { margin-top: 16px; }
 .log {
   background: rgba(255,255,255,0.45);
   border-radius: 14px;
@@ -463,13 +508,18 @@ input[type="checkbox"] {
   padding: 5px 10px;
   color: var(--ink);
 }
-.portfolio h3 { margin: 0; font-family: var(--serif); font-weight: 680; }
+.portfolio h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--serif); font-weight: 680; }
+.portfolio h3 .avatar { width: 28px; height: 28px; flex: 0 0 28px; }
+.portfolio h3 > span { min-width: 0; overflow-wrap: anywhere; }
+.portfolio .chips { gap: 6px; }
+.portfolio .chips button { font-size: 12px; line-height: 1.35; padding: 4px 8px; }
+.deed-actions .text-button { font-size: 12px; line-height: 1.35; padding: 4px 8px; }
 .text-button.danger { color: #9c3b32; }
 
 .drawer {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   gap: 8px;
   align-items: center;
   padding: 10px 18px 12px;
@@ -511,13 +561,6 @@ input[type="checkbox"] {
   font-style: normal;
   font-size: 12px;
   color: #9c3b32;
-}
-.knob {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #f4f1ec, #8d8680 45%, #5c5854);
-  box-shadow: 0 2px 0 rgba(0,0,0,0.2);
 }
 
 .menu {
@@ -586,4 +629,74 @@ input[type="checkbox"] {
 }
 @media (prefers-reduced-motion: reduce) {
   .die.rolling { animation: none; }
+}
+
+@media (max-width: 600px) {
+  .brand-lockup strong { font-size: 18px; }
+  .top-meta { gap: 6px; flex-shrink: 0; }
+  .top-meta button { padding: 6px 8px; white-space: nowrap; }
+}
+
+.map-picker { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; text-align: left; }
+.map-picker select { flex: 1; min-width: 130px; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: var(--cream); color: var(--ink); }
+.map-picker > span { white-space: nowrap; }
+
+.trade-hint { margin: 4px 0 8px; color: #f6f0e6; font-size: 14px; line-height: 1.5; }
+.trade-box { display: flex; flex-direction: column; flex: none; gap: 14px; margin: 8px 0; }
+.trade-box > .text-button { align-self: flex-start; }
+.trade-form {
+  display: flex;
+  flex-direction: column;
+  flex: none;
+  gap: 18px;
+  height: auto;
+  min-height: 0;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+  padding: 16px;
+}
+.trade-form > * { flex-shrink: 0; }
+.trade-form::-webkit-scrollbar { width: 8px; }
+.trade-form::-webkit-scrollbar-track { background: #e1d8cc; border-radius: 8px; }
+.trade-form::-webkit-scrollbar-thumb { background: #a4917c; border: 2px solid #e1d8cc; border-radius: 8px; }
+.trade-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.trade-column { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.trade-column > label { display: flex; flex-direction: column; gap: 8px; }
+.trade-column input[type="number"] { min-width: 0; }
+.trade-form .chips { gap: 6px; padding: 0; }
+.trade-form .chips:empty { display: none; }
+.trade-form .chips label { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; font-size: 12px; line-height: 1.35; max-width: 100%; }
+.trade-form input[type="checkbox"] { width: 13px; height: 13px; padding: 0; }
+/* Portaled to body so opening and scrolling never changes the side panel layout. */
+.trade-window {
+  position: fixed;
+  z-index: 80;
+  top: 84px;
+  right: 20px;
+  width: min(420px, calc(100vw - 32px));
+  height: min(520px, calc(100dvh - 108px));
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: #efeae3;
+  box-shadow: 0 16px 48px rgba(42, 36, 31, 0.24);
+}
+.trade-window > header, .trade-window > footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--cream);
+}
+.trade-window > header { justify-content: space-between; border-bottom: 1px solid var(--line); }
+.trade-window > header strong { font-family: var(--serif); font-size: 20px; }
+.trade-window > footer { justify-content: flex-end; border-top: 1px solid var(--line); }
+.trade-window > footer button { border-radius: 999px; padding: 8px 16px; color: var(--cream); background: var(--leather); }
+.trade-window .trade-form { flex: initial; }
+@media (max-width: 600px) {
+  .trade-window { right: 16px; }
 }

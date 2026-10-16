@@ -1,8 +1,9 @@
+import { isMapId } from '../../shared/board.ts'
 import fs from 'node:fs'
 import path from 'node:path'
 import { randomBytes } from 'node:crypto'
 import { characterById, characterTitle, isCharacterId } from '../../shared/characters.ts'
-import { DEFAULT_RULES, type Action, type DrawState, type GameState, type Rules, type Seat, type SeatInput, type Snapshot } from '../../shared/types.ts'
+import { DEFAULT_RULES, type MapId, type Action, type DrawState, type GameState, type Rules, type Seat, type SeatInput, type Snapshot } from '../../shared/types.ts'
 import { apply, arrangeSeats, createGame, ejectPlayer, type ApplyResult } from './engine.ts'
 
 export interface InternalSeat extends Seat {
@@ -12,7 +13,6 @@ export interface InternalSeat extends Seat {
 
 export interface Room {
   code: string
-  password: string | null
   hostId: string
   seats: InternalSeat[]
   rules: Rules
@@ -38,6 +38,10 @@ export function initStore(dataFile: string) {
     if (!fs.existsSync(file)) return
     const parsed = JSON.parse(fs.readFileSync(file, 'utf8')) as { rooms?: Room[] }
     for (const room of parsed.rooms ?? []) {
+      // Discard the removed field when restoring legacy room saves.
+      delete (room as Room & { password?: unknown }).password
+      room.rules = { ...DEFAULT_RULES, ...room.rules, mapId: isMapId(room.rules?.mapId) ? room.rules.mapId : 'china' }
+      if (room.game) room.game.rules = { ...DEFAULT_RULES, ...room.game.rules, mapId: room.rules.mapId }
       for (const seat of room.seats as Array<InternalSeat & { characterId?: string | null }>) {
         if (!Array.isArray(seat.characterIds)) seat.characterIds = seat.characterId ? [seat.characterId] : []
         delete seat.characterId
@@ -110,7 +114,6 @@ export function snapshot(room: Room, youId: string, events: Snapshot['events']):
     code: room.code,
     hostId: room.hostId,
     youId,
-    hasPassword: Boolean(room.password),
     seats: room.seats.map((item) => ({
       id: item.id,
       name: item.name,
@@ -131,7 +134,7 @@ function bind(room: Room, person: InternalSeat, socketId: string) {
   touch(room)
 }
 
-export function createRoom(name: string, password: string, socketId: string) {
+export function createRoom(name: string, socketId: string, mapId: MapId = 'china') {
   const person: InternalSeat = {
     id: randomBytes(8).toString('hex'),
     token: randomBytes(18).toString('hex'),
@@ -142,10 +145,9 @@ export function createRoom(name: string, password: string, socketId: string) {
   }
   const room: Room = {
     code: codeOf(),
-    password: password || null,
     hostId: person.id,
     seats: [person],
-    rules: { ...DEFAULT_RULES },
+    rules: { ...DEFAULT_RULES, mapId },
     game: null,
     draw: null,
     rev: 1,
@@ -157,12 +159,11 @@ export function createRoom(name: string, password: string, socketId: string) {
   return { room, person }
 }
 
-export function joinRoom(code: string, name: string, password: string, socketId: string) {
+export function joinRoom(code: string, name: string, socketId: string) {
   const room = rooms.get(code)
-  if (!room) return { error: '没有这个房间', fatal: true }
-  if ((room.password || '') !== password) return { error: '房间密码不对' }
-  if (room.game) return { error: '这局已经开始了，只有原来的人能回来' }
-  if (room.seats.length >= 6) return { error: '人满了' }
+  if (!room) return { error: '找不到该房间', fatal: true }
+  if (room.game) return { error: '本局已开始，仅限原有玩家重新加入' }
+  if (room.seats.length >= 6) return { error: '房间已满' }
   const person: InternalSeat = {
     id: randomBytes(8).toString('hex'),
     token: randomBytes(18).toString('hex'),
@@ -180,9 +181,9 @@ export function joinRoom(code: string, name: string, password: string, socketId:
 
 export function resume(code: string, token: string, socketId: string) {
   const room = rooms.get(code)
-  if (!room) return { error: '房间已经散了', fatal: true }
+  if (!room) return { error: '房间已关闭', fatal: true }
   const person = room.seats.find((item) => item.token === token)
-  if (!person) return { error: '这个位子不在了', fatal: true }
+  if (!person) return { error: '你已不在该房间，请重新加入', fatal: true }
   bind(room, person, socketId)
   room.rev += 1
   persist()
@@ -255,16 +256,16 @@ function bump(room: Room, events: Snapshot['events'] = []) {
 }
 
 export function selectCharacter(room: Room, person: InternalSeat, characterId: string | null) {
-  if (room.draw) return '正在抽签，先别换人'
-  if (room.game) return '开局之后就不能换了'
+  if (room.draw) return '正在抽签，暂时无法更换角色'
+  if (room.game) return '游戏开始后无法更换角色'
   if (!characterId) {
     person.characterIds = []
     bump(room)
     return null
   }
-  if (!isCharacterId(characterId)) return '没有这个角色'
+  if (!isCharacterId(characterId)) return '找不到该角色'
   const taken = room.seats.find((item) => item.id !== person.id && item.characterIds.includes(characterId))
-  if (taken) return `${taken.name} 已经选了`
+  if (taken) return `该角色已被 ${taken.name} 选中`
   if (person.characterIds.includes(characterId)) person.characterIds = person.characterIds.filter((id) => id !== characterId)
   else person.characterIds.push(characterId)
   bump(room)
@@ -272,21 +273,23 @@ export function selectCharacter(room: Room, person: InternalSeat, characterId: s
 }
 
 export function rename(room: Room, person: InternalSeat, name: string) {
-  if (!name) return '名字不能空'
+  if (!name) return '请输入名字'
   person.name = name
   bump(room)
   return null
 }
 
 export function setRules(room: Room, person: InternalSeat, patch: Partial<Rules>) {
-  if (room.hostId !== person.id) return '只有房主能改'
-  if (room.draw) return '正在抽签'
-  if (room.game) return '开局之后就不能改了'
+  if (room.hostId !== person.id) return '只有房主可以修改设置'
+  if (room.draw) return '正在抽签，请稍候'
+  if (room.game) return '游戏开始后无法修改规则'
+  if (patch.mapId !== undefined && !isMapId(patch.mapId)) return '请选择有效地图'
   const allowed = [1000, 1500, 2000, 2500]
   if (patch.startingMoney !== undefined) {
-    if (!allowed.includes(patch.startingMoney)) return '这个金额不能选'
+    if (!allowed.includes(patch.startingMoney)) return '请选择有效金额'
     room.rules.startingMoney = patch.startingMoney
   }
+  if (patch.mapId !== undefined) room.rules.mapId = patch.mapId
   if (patch.auction !== undefined) room.rules.auction = Boolean(patch.auction)
   if (patch.freeParking !== undefined) room.rules.freeParking = Boolean(patch.freeParking)
   bump(room)
@@ -294,11 +297,11 @@ export function setRules(room: Room, person: InternalSeat, patch: Partial<Rules>
 }
 
 export function kick(room: Room, person: InternalSeat, playerId: string) {
-  if (room.hostId !== person.id) return { error: '只有房主能请人走' }
-  if (room.game) return { error: '开局之后就不能请人走了' }
-  if (playerId === person.id) return { error: '不能把自己请走' }
+  if (room.hostId !== person.id) return { error: '只有房主可以移出玩家' }
+  if (room.game) return { error: '游戏开始后无法移出玩家' }
+  if (playerId === person.id) return { error: '无法移出自己，请使用离开按钮' }
   const target = seat(room, playerId)
-  if (!target) return { error: '没有这个位子' }
+  if (!target) return { error: '该玩家已离开房间' }
   const kickedSocketId = target.socketId
   if (target.socketId) sockets.delete(target.socketId)
   room.seats = room.seats.filter((item) => item.id !== playerId)
@@ -308,11 +311,11 @@ export function kick(room: Room, person: InternalSeat, playerId: string) {
 }
 
 export function start(room: Room, person: InternalSeat) {
-  if (room.hostId !== person.id) return '只有房主能开始'
-  if (room.draw) return '正在抽签'
-  if (room.game) return '已经开始了'
-  if (room.seats.some((item) => !item.connected)) return '还有人没连上。等等，或者先请他们离开。'
-  if (room.seats.some((item) => item.characterIds.length === 0)) return '还有人没选角色'
+  if (room.hostId !== person.id) return '只有房主可以开始游戏'
+  if (room.draw) return '正在抽签，请稍候'
+  if (room.game) return '游戏已经开始'
+  if (room.seats.some((item) => !item.connected)) return '还有玩家未连接，请等待重连，或将其移出房间后开始。'
+  if (room.seats.some((item) => item.characterIds.length === 0)) return '请等待所有玩家选好角色'
   const seated = room.seats.flatMap((item) =>
     item.characterIds.flatMap((characterId) => {
       if (!isCharacterId(characterId)) return []
@@ -321,8 +324,8 @@ export function start(room: Room, person: InternalSeat) {
       return [{ id: `${item.id}:${characterId}`, controllerId: item.id, name: characterTitle(character), characterId, connected: true }]
     }),
   )
-  if (!seated.length) return '先选角色'
-  if (seated.length > 6) return '一桌最多六个角色'
+  if (!seated.length) return '请先选择角色'
+  if (seated.length > 6) return '每局最多可选六个角色'
   const arranged = arrangeSeats(seated, Math.random)
   const revealStartMs = 480
   const revealStepMs = 680
@@ -380,19 +383,19 @@ function actorFor(game: GameState, humanId: string, action: Action) {
 }
 
 export function act(room: Room, person: InternalSeat, action: Action): { error?: string; result?: ApplyResult } {
-  if (!room.game) return { error: '还没开始' }
-  if (!PUBLIC.has(action.type)) return { error: '这个操作不能用' }
+  if (!room.game) return { error: '游戏尚未开始' }
+  if (!PUBLIC.has(action.type)) return { error: '此操作不可用' }
   const actor = actorFor(room.game, person.id, action)
-  if (!actor) return { error: '现在轮不到你' }
+  if (!actor) return { error: '还没轮到你操作' }
   const result = apply(room.game, actor, action)
-  if (!result.ok) return { error: result.error || '做不到' }
+  if (!result.ok) return { error: result.error || '暂时无法完成此操作' }
   room.game = result.state
   bump(room, result.events)
   return { result }
 }
 
 export function disband(room: Room, person: InternalSeat) {
-  if (room.hostId !== person.id) return '只有房主能解散'
+  if (room.hostId !== person.id) return '只有房主可以结束本局'
   room.game = null
   room.draw = null
   bump(room)

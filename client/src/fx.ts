@@ -28,6 +28,9 @@ export function useFx(snap: Snapshot | null) {
   const [notice, setNotice] = useState<string | null>(null)
   const [animating, setAnimating] = useState(false)
   const runRef = useRef(0)
+  const activeRef = useRef(false)
+  const playingTurnRef = useRef<string | null>(null)
+  const roomRef = useRef(snap?.code)
   const snapRef = useRef(snap)
   snapRef.current = snap
 
@@ -54,31 +57,48 @@ export function useFx(snap: Snapshot | null) {
 
   useEffect(() => {
     const current = snapRef.current
+    if (roomRef.current !== current?.code || !current?.game) {
+      roomRef.current = current?.code
+      runRef.current += 1
+      activeRef.current = false
+      setAnimating(false)
+      setRolling(false)
+      setCard(null)
+      setCardFace(null)
+      setCardDeck(null)
+      setNotice(null)
+    }
     if (!current?.game) {
-      if (runRef.current === 0) {
-        setTokens({})
-        setDice(null)
-        setCard(null)
-        setCardFace(null)
-        setCardDeck(null)
-        setNotice(null)
-      }
+      setTokens({})
+      setDice(null)
       return
     }
     const anims = current.events.filter(isFx)
     if (!anims.length) {
-      if (runRef.current === 0) applyQuiet(current)
+      if (activeRef.current && (playingTurnRef.current !== current.game.currentId || current.game.phase === 'ended')) {
+        runRef.current += 1
+        activeRef.current = false
+        setAnimating(false)
+        setRolling(false)
+      }
+      if (!activeRef.current) applyQuiet(current)
       return
     }
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const pace = (ms: number) => wait(reduce ? 0 : ms)
     const my = ++runRef.current
+    activeRef.current = true
+    playingTurnRef.current = current.game.currentId
+    setRolling(false)
     setAnimating(true)
     void (async () => {
       for (const event of anims) {
         if (runRef.current !== my) return
         if (event.type === 'dice') {
           setNotice(null)
+          setCard(null)
+          setCardFace(null)
+          setCardDeck(null)
           setRolling(true)
           sfx.roll()
           await pace(DICE_MS)
@@ -143,11 +163,19 @@ export function useFx(snap: Snapshot | null) {
         }
       }
       if (runRef.current !== my) return
-      applyQuiet(current)
-      runRef.current = 0
+      // A quiet snapshot (end turn, reconnect, etc.) may arrive during playback.
+      // Never restore the card or positions from the older animation snapshot.
+      if (snapRef.current) applyQuiet(snapRef.current)
+      activeRef.current = false
+      setRolling(false)
       setAnimating(false)
     })()
   }, [snap?.rev, snap?.code])
+
+  useEffect(() => () => {
+    runRef.current += 1
+    activeRef.current = false
+  }, [])
 
   return { tokens, dice, rolling, card, cardFace, cardDeck, notice, animating }
 }

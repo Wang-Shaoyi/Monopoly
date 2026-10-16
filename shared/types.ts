@@ -48,7 +48,10 @@ export interface Character {
   blurb: string
 }
 
+export type MapId = 'china' | 'usa'
+
 export interface Rules {
+  mapId: MapId
   startingMoney: number
   salary: number
   auction: boolean
@@ -56,6 +59,7 @@ export interface Rules {
 }
 
 export const DEFAULT_RULES: Rules = {
+  mapId: 'china',
   startingMoney: 1500,
   salary: 200,
   auction: true,
@@ -263,7 +267,6 @@ export interface Snapshot {
   code: string
   hostId: string
   youId: string
-  hasPassword: boolean
   seats: Seat[]
   rules: Rules
   draw: DrawState | null

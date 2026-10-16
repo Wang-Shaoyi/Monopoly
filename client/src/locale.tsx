@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import type { Lang } from '@shared/board.ts'
+import { spacesForMap, type Lang } from '@shared/board.ts'
+import type { MapId } from '@shared/types.ts'
 import { translate } from '@shared/phrases.ts'
 
 const KEY = 'woodbox-lang'
@@ -22,12 +23,18 @@ export function LangProvider({ children }: { children: ReactNode }) {
   )
 }
 
+const MapContext = createContext<MapId>('china')
+export const BoardMapProvider = MapContext.Provider
+
 export function useI18n() {
   const { lang, toggle } = useContext(LangContext)
+  const mapId = useContext(MapContext)
   return {
     lang,
+    mapId,
+    spaces: spacesForMap(mapId),
     toggle,
     tx: (zh: string, en: string) => (lang === 'en' ? en : zh),
-    say: (text: string) => translate(lang, text),
+    say: (text: string) => translate(lang, text, mapId),
   }
 }

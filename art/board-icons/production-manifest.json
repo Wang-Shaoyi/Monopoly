@@ -1,0 +1,587 @@
+{
+  "generator": "Built-in image_gen",
+  "style": "Approved review-v2 simplified pastel icons",
+  "transparent_background": true,
+  "records": [
+    {
+      "key": "en-washington-dc",
+      "locale": "en",
+      "label": "Washington, D.C.",
+      "motif": "美国国会大厦",
+      "spaceIds": [
+        37
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE new Washington, D.C. icon for a pastel wooden Monopoly board game. Input image 1 is STYLE REFERENCE ONLY, an existing simplified Statue of Liberty board icon; do not copy its subject. Subject: United States Capitol building, recognizable compact pale cream dome with a small simple finial, one broad low pediment and FOUR chunky pale columns on a small dusty-blue base. Only the Capitol, no city skyline or extra symbols. Match the reference's rounded shapes, flat muted pastel colors, restrained soft single shadow and very low detail. Readable as a tiny 32px pictogram. Maximum 3–4 colors, no fine architectural details, windows, textures, outlines, flags, lettering, logo, badges, ground, backdrop or watermark. Entire subject uncut, centered in about 75% of the square canvas with generous transparent margins. Genuinely transparent RGBA background. Aggressively simplified, warm cream and muted blue-gray palette."
+    },
+    {
+      "key": "zh-jingdezhen",
+      "locale": "zh",
+      "label": "景德镇",
+      "motif": "青花瓷瓶",
+      "spaceIds": [
+        1
+      ],
+      "reuse": "art/board-icons/review-v2/zh-jingdezhen-porcelain-v2.png"
+    },
+    {
+      "key": "zh-nanchang",
+      "locale": "zh",
+      "label": "南昌",
+      "motif": "滕王阁",
+      "spaceIds": [
+        3
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: Tengwang Pavilion: a squat Chinese pavilion with three broad stacked blue-green upturned roofs, coral body, one cream doorway. No individual tiles, balcony rails or ornament."
+    },
+    {
+      "key": "zh-huangshan",
+      "locale": "zh",
+      "label": "黄山",
+      "motif": "奇松山峰",
+      "spaceIds": [
+        6
+      ],
+      "reuse": "art/board-icons/review-v2/zh-huangshan-pine-v2.png"
+    },
+    {
+      "key": "zh-maanshan",
+      "locale": "zh",
+      "label": "马鞍山",
+      "motif": "李白诗卷",
+      "spaceIds": [
+        8
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: One partially unfurled cream Chinese poetry scroll with two short warm-brown rollers and ONE bold teal ink-brush resting diagonally across it. No written characters, no ink strokes, no landscape. Symbol of Li Bai poetry at Caishiji."
+    },
+    {
+      "key": "zh-hefei",
+      "locale": "zh",
+      "label": "合肥",
+      "motif": "包公乌纱帽",
+      "spaceIds": [
+        9
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: One simplified black-brown ancient Chinese magistrate hat associated with Bao Zheng: rounded cap with two short flat side wings and a single cream crescent symbol on its front. Hat only, no face or person."
+    },
+    {
+      "key": "zh-panzhihua",
+      "locale": "zh",
+      "label": "攀枝花",
+      "motif": "木棉花",
+      "spaceIds": [
+        12
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE large coral kapok flower with exactly five broad rounded petals, butter-yellow center, one tiny sage leaf. No individual stamens or veins."
+    },
+    {
+      "key": "zh-zigong",
+      "locale": "zh",
+      "label": "自贡",
+      "motif": "恐龙",
+      "spaceIds": [
+        13
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE friendly sage-green long-neck dinosaur in profile, chunky rounded body, four short legs, curved neck, tiny smiling head, simple tail. No scales or spots, no landscape."
+    },
+    {
+      "key": "zh-chengdu",
+      "locale": "zh",
+      "label": "成都",
+      "motif": "熊猫",
+      "spaceIds": [
+        14
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE cute seated giant panda with a round cream body, two charcoal ears, two large black eye patches, small paws, holding one short sage bamboo shoot. Very simple, no fur texture."
+    },
+    {
+      "key": "zh-yantai",
+      "locale": "zh",
+      "label": "烟台",
+      "motif": "苹果",
+      "spaceIds": [
+        16
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE plump coral-red apple with one tiny brown stem and one sage leaf, one broad cream highlight only. No basket or scenery."
+    },
+    {
+      "key": "zh-jinan",
+      "locale": "zh",
+      "label": "济南",
+      "motif": "趵突泉",
+      "spaceIds": [
+        18
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: Three simple sky-blue spring-water jets rising from ONE shallow dusty-teal oval pool rim. Rounded stylized water shapes, no realistic splashes, rocks or buildings."
+    },
+    {
+      "key": "zh-qingdao",
+      "locale": "zh",
+      "label": "青岛",
+      "motif": "啤酒杯",
+      "spaceIds": [
+        19
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE squat transparent honey-yellow beer mug with large cream foam cap and one rounded handle. Simple flat amber body, no logo, letters, small bubbles or extra items."
+    },
+    {
+      "key": "zh-wenzhou",
+      "locale": "zh",
+      "label": "温州",
+      "motif": "雁荡山瀑布",
+      "spaceIds": [
+        21
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: Two narrow steep sage-gray mountain pillars framing ONE clean sky-blue waterfall stripe. Just three bold forms, no trees, clouds, rock cracks, moss or small detail."
+    },
+    {
+      "key": "zh-ningbo",
+      "locale": "zh",
+      "label": "宁波",
+      "motif": "天一阁藏书",
+      "spaceIds": [
+        23
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE small cream closed thread-bound ancient book with teal cover edge and a coral bookmark, plus a tiny simple teal Chinese roof above the book to suggest Tianyi Pavilion library. No characters, patterns or shelves."
+    },
+    {
+      "key": "zh-hangzhou",
+      "locale": "zh",
+      "label": "杭州",
+      "motif": "西湖断桥",
+      "spaceIds": [
+        24
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simple ivory arched stone footbridge over TWO short dusty-teal horizontal wave strokes. No railings, fine bricks, people, buildings or background."
+    },
+    {
+      "key": "zh-yangzhou",
+      "locale": "zh",
+      "label": "扬州",
+      "motif": "五亭桥",
+      "spaceIds": [
+        26
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: A compact simplified Five Pavilion Bridge: ONE cream arch bridge with FIVE tiny connected rounded golden pavilion roofs in a row, central roof larger. No roof tiles, rails or small details."
+    },
+    {
+      "key": "zh-suzhou",
+      "locale": "zh",
+      "label": "苏州",
+      "motif": "园林月洞门",
+      "spaceIds": [
+        27
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE ivory circular garden moon gate contained in a small low white wall with a simple charcoal curved roof edge, one small sage leaf beside its base. No garden scene, no many plants."
+    },
+    {
+      "key": "zh-nanjing",
+      "locale": "zh",
+      "label": "南京",
+      "motif": "中华门城墙",
+      "spaceIds": [
+        29
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE squat dusty warm-gray Chinese city gate: three broad battlements on top, ONE large cream arch doorway and a small coral upturned-roof gatehouse above. No brick pattern."
+    },
+    {
+      "key": "zh-guangzhou",
+      "locale": "zh",
+      "label": "广州",
+      "motif": "广州塔",
+      "spaceIds": [
+        31
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simplified Canton Tower: tall slender dusty-teal hourglass silhouette with a narrow middle, a butter-yellow oval observation cap, a short coral antenna. No lattice, windows, wires or skyline."
+    },
+    {
+      "key": "zh-shenzhen",
+      "locale": "zh",
+      "label": "深圳",
+      "motif": "平安金融中心",
+      "spaceIds": [
+        32
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simplified Ping An Finance Centre skyscraper: a tapered pale-blue tall tower with distinctive pointed pyramidal crown, one broad dusty-teal side shadow. No window grid, skyline or lettering."
+    },
+    {
+      "key": "zh-hong-kong",
+      "locale": "zh",
+      "label": "香港",
+      "motif": "红帆船",
+      "spaceIds": [
+        34
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE Chinese junk boat: a simple warm-brown hull carrying TWO broad coral-red fan-shaped sails and a tiny dusty-teal wave underneath. No sail ribs, ropes, people or skyline."
+    },
+    {
+      "key": "zh-beijing",
+      "locale": "zh",
+      "label": "北京",
+      "motif": "天坛祈年殿",
+      "spaceIds": [
+        37
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simplified Temple of Heaven Hall of Prayer: THREE stacked broad circular dusty-blue roofs, short coral-red round body, tiny gold finial, cream base. No pillars, tiny roof details or background."
+    },
+    {
+      "key": "zh-shanghai",
+      "locale": "zh",
+      "label": "上海",
+      "motif": "东方明珠",
+      "spaceIds": [
+        39
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simple Oriental Pearl Tower silhouette: two large coral spheres on a slender dusty-teal shaft with three short cream support legs and a tiny spire. No city skyline, windows or patterned structure."
+    },
+    {
+      "key": "en-houston",
+      "locale": "en",
+      "label": "Houston",
+      "motif": "航天火箭",
+      "spaceIds": [
+        1
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE friendly upright space rocket associated with Space Center Houston: cream capsule body, dusty-teal round window, two coral fins, small butter-yellow flame. No logo, lettering or stars."
+    },
+    {
+      "key": "en-dallas",
+      "locale": "en",
+      "label": "Dallas",
+      "motif": "牛仔帽",
+      "spaceIds": [
+        3
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE tan cowboy hat with a broad softly curled brim, a pinched rounded crown and ONE dusty-teal hatband. No stitching, badge, person or stars."
+    },
+    {
+      "key": "en-orlando",
+      "locale": "en",
+      "label": "Orlando",
+      "motif": "主题乐园城堡",
+      "spaceIds": [
+        6
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE generic tiny theme-park fairytale castle, NOT any branded Disney castle: cream central block, THREE broad coral conical tower roofs, one dusty-blue rounded doorway. No flags, decorative turrets, walls of bricks or logo."
+    },
+    {
+      "key": "en-tampa",
+      "locale": "en",
+      "label": "Tampa",
+      "motif": "海盗船",
+      "spaceIds": [
+        8
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE friendly tiny pirate sailboat for Tampa Gasparilla: squat warm-brown hull, ONE cream sail with a simple coral four-point sparkle pictogram, one short mast. No skull, ropes, rigging, crew or waves."
+    },
+    {
+      "key": "en-miami",
+      "locale": "en",
+      "label": "Miami",
+      "motif": "棕榈与装饰艺术建筑",
+      "spaceIds": [
+        9
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE short pastel-coral Art Deco building with three broad rounded stepped levels, ONE large teal doorway and ONE small sage palm leaning beside it. No window grids, thin trim, lettering or skyline."
+    },
+    {
+      "key": "en-juneau",
+      "locale": "en",
+      "label": "Juneau",
+      "motif": "冰川",
+      "spaceIds": [
+        12
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE chunky pale icy-blue glacier silhouette with THREE rounded peaked blocks and ONE broad dusty-teal diagonal crevasse. No fine cracks, snow texture, scenery or water."
+    },
+    {
+      "key": "en-fairbanks",
+      "locale": "en",
+      "label": "Fairbanks",
+      "motif": "极光",
+      "spaceIds": [
+        13
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: TWO broad flowing curved aurora ribbons, one sage-green and one pastel-lilac, above a single small pale-blue mountain silhouette. No night-sky rectangle, stars, moon or scenery backdrop; the ribbons themselves are isolated transparent shapes."
+    },
+    {
+      "key": "en-anchorage",
+      "locale": "en",
+      "label": "Anchorage",
+      "motif": "驼鹿",
+      "spaceIds": [
+        14
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE cute rounded warm-brown moose head with two simple broad tan antlers and two tiny ears. No fur texture, elaborate antler tines or scenery."
+    },
+    {
+      "key": "en-carson-city",
+      "locale": "en",
+      "label": "Carson City",
+      "motif": "内华达州议会大厦",
+      "spaceIds": [
+        16
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE squat cream Nevada State Capitol building with a silver-gray rounded dome and small coral finial, ONE broad dusty-teal front entrance. No columns, many windows, flags or lettering."
+    },
+    {
+      "key": "en-reno",
+      "locale": "en",
+      "label": "Reno",
+      "motif": "雷诺拱门",
+      "spaceIds": [
+        18
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE stylized Reno Arch: two short dusty-teal posts supporting a broad coral arch and one cream horizontal rounded sign panel. Panel is blank except ONE gold four-point sparkle. No words, letters, bulbs, roadway or skyline."
+    },
+    {
+      "key": "en-las-vegas",
+      "locale": "en",
+      "label": "Las Vegas",
+      "motif": "星芒灯牌",
+      "spaceIds": [
+        19
+      ],
+      "reuse": "art/board-icons/review-v2/en-las-vegas-sign-v2.png"
+    },
+    {
+      "key": "en-hilo",
+      "locale": "en",
+      "label": "Hilo",
+      "motif": "彩虹瀑布",
+      "spaceIds": [
+        21
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simple sky-blue waterfall descending over TWO rounded sage-gray rock shapes, with ONE small three-band pastel rainbow arch above. No forest, extra cascades, rocks or landscape."
+    },
+    {
+      "key": "en-kailua-kona",
+      "locale": "en",
+      "label": "Kailua-Kona",
+      "motif": "科纳咖啡",
+      "spaceIds": [
+        23
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: TWO large warm-brown coffee beans with a single smooth cream center split on each, and ONE sage leaf behind. No coffee cup, branch, lettering, steam or extra beans."
+    },
+    {
+      "key": "en-honolulu",
+      "locale": "en",
+      "label": "Honolulu",
+      "motif": "钻石头山与海浪",
+      "spaceIds": [
+        24
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE recognizable low asymmetrical Diamond Head volcanic crater ridge in warm sage, with TWO broad teal surf wave curves at its base. No skyline, sand scene, palm forest, sun or small detail."
+    },
+    {
+      "key": "en-spokane",
+      "locale": "en",
+      "label": "Spokane",
+      "motif": "斯波坎瀑布",
+      "spaceIds": [
+        26
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE wide turquoise river waterfall with TWO simple cream horizontal flow steps and a short dusty-gray arched footbridge above. No landscape, windows, buildings, foam speckles or scenery."
+    },
+    {
+      "key": "en-tacoma",
+      "locale": "en",
+      "label": "Tacoma",
+      "motif": "玻璃博物馆锥体",
+      "spaceIds": [
+        27
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simple tilted pale-blue conical Museum of Glass Hot Shop building with an oval dark-teal opening at the tip and a single coral molten-glass droplet pictogram at its foot. No metallic panel seams, windows or skyline."
+    },
+    {
+      "key": "en-seattle",
+      "locale": "en",
+      "label": "Seattle",
+      "motif": "太空针塔",
+      "spaceIds": [
+        29
+      ],
+      "reuse": "art/board-icons/review-v2/en-seattle-space-needle-v2.png"
+    },
+    {
+      "key": "en-san-diego",
+      "locale": "en",
+      "label": "San Diego",
+      "motif": "巴尔博亚公园塔楼",
+      "spaceIds": [
+        31
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simplified Balboa Park California Tower: warm-cream compact Spanish-style bell tower with a simple butter-yellow domed top, ONE large teal arched opening and ONE coral base. No intricate ornament, tiles, many windows or scenery."
+    },
+    {
+      "key": "en-san-francisco",
+      "locale": "en",
+      "label": "San Francisco",
+      "motif": "金门大桥",
+      "spaceIds": [
+        32
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simplified Golden Gate Bridge with TWO broad coral-red upright towers, ONE gently curved coral suspension cable and a single dusty-teal wave beneath. No vertical fine cables, roadway markings, cars or scenery."
+    },
+    {
+      "key": "en-los-angeles",
+      "locale": "en",
+      "label": "Los Angeles",
+      "motif": "电影场记板",
+      "spaceIds": [
+        34
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE friendly cream movie clapperboard with a charcoal-blue top clapstick showing only THREE broad cream diagonal stripes, and ONE large muted-coral star centered on its blank body. No text, numbers, knobs or extra props."
+    },
+    {
+      "key": "en-boston",
+      "locale": "en",
+      "label": "Boston",
+      "motif": "龙虾",
+      "spaceIds": [],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE cute simplified coral-red lobster viewed from above with two big rounded claws, a broad segmented-free body and a simple three-lobed tail. Tiny legs only as TWO short curved strokes on each side, no antenna filigree or shell texture.",
+      "archived": true,
+      "note": "Retained for future use. Space 37 now uses Washington, D.C."
+    },
+    {
+      "key": "en-new-york",
+      "locale": "en",
+      "label": "New York",
+      "motif": "自由女神像",
+      "spaceIds": [
+        39
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE simplified pale-sage Statue of Liberty bust holding a butter-yellow torch aloft, chunky crown with just FIVE broad points, cream tablet against body. No face details, robe folds, skyline or lettering."
+    },
+    {
+      "key": "shared-go",
+      "locale": "shared",
+      "label": "起点箭头",
+      "motif": "起点箭头",
+      "spaceIds": [
+        0
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE broad coral-red curved rightward arrow with a butter-yellow rounded coin at the start. Flat rounded shape, no lettering or symbols."
+    },
+    {
+      "key": "shared-chance",
+      "locale": "shared",
+      "label": "机会卡",
+      "motif": "机会卡",
+      "spaceIds": [
+        7,
+        22,
+        36
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE tilted cream rounded card with ONE very large coral QUESTION MARK punctuation symbol centered, and a tiny butter-yellow sparkle at upper corner. No written words or border decoration."
+    },
+    {
+      "key": "shared-chest",
+      "locale": "shared",
+      "label": "公益金",
+      "motif": "公益金",
+      "spaceIds": [
+        2,
+        17,
+        33
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE small butter-yellow gift box with coral ribbon and ONE sage heart centered on its front. Slightly open lid, no coins spilling out or little decorations."
+    },
+    {
+      "key": "shared-jail",
+      "locale": "shared",
+      "label": "监狱",
+      "motif": "监狱",
+      "spaceIds": [
+        10
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE small warm-gray rounded jail window frame containing THREE thick dusty-blue vertical bars and TWO cream horizontal edges. No face, prisoner, wall bricks or tiny bolts."
+    },
+    {
+      "key": "shared-go-to-jail",
+      "locale": "shared",
+      "label": "前往监狱",
+      "motif": "前往监狱",
+      "spaceIds": [
+        30
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE pair of chunky dusty-blue open handcuffs connected by ONE tiny cream link, with ONE small coral rightward arrow above. No lock details, key or text."
+    },
+    {
+      "key": "shared-parking",
+      "locale": "shared",
+      "label": "免费停车",
+      "motif": "免费停车",
+      "spaceIds": [
+        20
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE friendly compact pastel-teal car in front three-quarter view with cream windshield, TWO charcoal rounded wheels and small butter-yellow lamps. No license plate, grille, scenery or letter P."
+    },
+    {
+      "key": "shared-income-tax",
+      "locale": "shared",
+      "label": "所得税",
+      "motif": "所得税",
+      "spaceIds": [
+        4
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE small cream paper receipt with a softly zigzag bottom edge, TWO broad teal horizontal strokes, and ONE butter-yellow coin in front. No actual text, numbers or currency signs."
+    },
+    {
+      "key": "shared-luxury-tax",
+      "locale": "shared",
+      "label": "奢侈税",
+      "motif": "奢侈税",
+      "spaceIds": [
+        38
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE large pale-blue diamond with just THREE broad facets, and ONE butter-yellow coin tucked at lower right. No sparkle cluster, text or extra gems."
+    },
+    {
+      "key": "shared-electric",
+      "locale": "shared",
+      "label": "电力公司",
+      "motif": "电力公司",
+      "spaceIds": [
+        11
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE chunky dusty-teal two-prong electric plug with a short curved cord, overlaid with ONE large butter-yellow lightning bolt. No socket, buildings, wires or lettering."
+    },
+    {
+      "key": "shared-water",
+      "locale": "shared",
+      "label": "自来水厂",
+      "motif": "自来水厂",
+      "spaceIds": [
+        28
+      ],
+      "reuse": "art/board-icons/review-v2/shared-water-works-v2.png"
+    },
+    {
+      "key": "zh-transport",
+      "locale": "zh",
+      "label": "中国高铁",
+      "motif": "中国高铁",
+      "spaceIds": [
+        5,
+        15,
+        25,
+        35
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE cute modern Chinese high-speed bullet train front in three-quarter view, rounded cream aerodynamic nose, ONE broad dusty-blue windshield, a single coral stripe and TWO tiny charcoal wheels. No rails extending away, scenery, logo, lettering or complex panels."
+    },
+    {
+      "key": "en-transport",
+      "locale": "en",
+      "label": "美国机场",
+      "motif": "美国机场",
+      "spaceIds": [
+        5,
+        15,
+        25,
+        35
+      ],
+      "prompt": "Use case: stylized-concept. Create ONE tiny transparent raster icon for a pastel wooden Monopoly board game. Match a cohesive approved icon set of flat rounded porcelain vase, two mountain peaks with pine, simple Vegas sign, simple Space Needle, and water faucet. VERY SIMPLE children's board-game pictogram, recognizable at 32px. Use only 3–4 harmonious muted pastel solid colors: warm cream, dusty teal, sage, coral, butter yellow, pale blue as appropriate. Big smooth rounded shapes, at most ONE broad subtle shadow. NO watercolor texture, granulation, speckles, paper texture, fine lines, intricate patterns, architectural windows, small embellishments, realistic rendering, 3D lighting, black outlines, photographic detail, or extra scene. A SINGLE compact isolated subject (maximum two essential connected elements), entire silhouette uncut, centered within 75% of square canvas, generous 12% transparent margins. No circular background, badge, sticker border, ground, cast shadow, backdrop, scenery, lettering, logo or watermark. Genuine transparent RGBA background. Important: simplify aggressively, not a miniature detailed painting.\nSubject: ONE broad simple cream airplane silhouette angled upward above ONE small dusty-teal airport terminal with a short coral control tower. Plane has two broad rounded wings, no windows or markings. No runway scenery or extra planes."
+    }
+  ]
+}

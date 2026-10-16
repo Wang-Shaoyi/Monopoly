@@ -1,3 +1,4 @@
+import { isMapId } from '../../shared/board.ts'
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
@@ -69,22 +70,22 @@ function problem(socketId: string, message: string, fatal = false, code?: string
 }
 
 io.on('connection', (socket) => {
-  socket.on('create', (body: { name?: string; password?: string; sitePassword?: string }) => {
-    if (!allowed(body?.sitePassword)) return problem(socket.id, '口令不对', true, 'site')
+  socket.on('create', (body: { mapId?: unknown; name?: string; sitePassword?: string }) => {
+    if (!allowed(body?.sitePassword)) return problem(socket.id, '访问密码错误', true, 'site')
     const name = sanitizeName(body?.name)
-    if (!name) return problem(socket.id, '先写个名字')
-    const password = String(body?.password || '').slice(0, 32)
-    const { room, person } = createRoom(name, password, socket.id)
+    if (!name) return problem(socket.id, '请先输入名字')
+    if (body?.mapId !== undefined && !isMapId(body.mapId)) return problem(socket.id, '请选择有效地图')
+    const { room, person } = createRoom(name, socket.id, body?.mapId)
     socket.emit('welcome', { playerId: person.id, token: person.token, code: room.code })
     send(room)
   })
 
-  socket.on('join', (body: { code?: string; name?: string; password?: string; sitePassword?: string }) => {
-    if (!allowed(body?.sitePassword)) return problem(socket.id, '口令不对', true, 'site')
+  socket.on('join', (body: { code?: string; name?: string; sitePassword?: string }) => {
+    if (!allowed(body?.sitePassword)) return problem(socket.id, '访问密码错误', true, 'site')
     const name = sanitizeName(body?.name)
-    if (!name) return problem(socket.id, '先写个名字')
+    if (!name) return problem(socket.id, '请先输入名字')
     const code = String(body?.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4)
-    const result = joinRoom(code, name, String(body?.password || '').slice(0, 32), socket.id)
+    const result = joinRoom(code, name, socket.id)
     if ('error' in result && result.error) return problem(socket.id, result.error, Boolean(result.fatal))
     if (!('room' in result) || !result.room || !result.person) return
     socket.emit('welcome', { playerId: result.person.id, token: result.person.token, code: result.room.code })
@@ -92,7 +93,7 @@ io.on('connection', (socket) => {
   })
 
   socket.on('resume', (body: { code?: string; token?: string; sitePassword?: string }) => {
-    if (!allowed(body?.sitePassword)) return problem(socket.id, '口令不对', true, 'site')
+    if (!allowed(body?.sitePassword)) return problem(socket.id, '访问密码错误', true, 'site')
     const result = resume(String(body?.code || '').toUpperCase(), String(body?.token || ''), socket.id)
     if ('error' in result && result.error) return problem(socket.id, result.error, Boolean(result.fatal))
     if (!('room' in result) || !result.room || !result.person) return
@@ -112,7 +113,7 @@ io.on('connection', (socket) => {
 
   socket.on('select-character', (body: { characterId?: string | null }) => {
     const loc = locate(socket.id)
-    if (!loc) return problem(socket.id, '你不在这房间里', true)
+    if (!loc) return problem(socket.id, '你已不在该房间，请重新加入', true)
     const error = selectCharacter(loc.room, loc.person, body?.characterId || null)
     if (error) return problem(socket.id, error)
     send(loc.room)
@@ -139,7 +140,7 @@ io.on('connection', (socket) => {
     if (!loc) return
     const result = kick(loc.room, loc.person, String(body?.playerId || ''))
     if (result.error) return problem(socket.id, result.error)
-    if (result.kickedSocketId) problem(result.kickedSocketId, '你被请出去了', true)
+    if (result.kickedSocketId) problem(result.kickedSocketId, '房主已将你移出房间', true)
     send(loc.room)
   })
 
@@ -161,7 +162,7 @@ io.on('connection', (socket) => {
 
   socket.on('action', (body: Action) => {
     const loc = locate(socket.id)
-    if (!loc) return problem(socket.id, '你不在这房间里', true)
+    if (!loc) return problem(socket.id, '你已不在该房间，请重新加入', true)
     const { error, result } = act(loc.room, loc.person, body)
     if (error) return problem(socket.id, error)
     send(loc.room, result?.events || [])

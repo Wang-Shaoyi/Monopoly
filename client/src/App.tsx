@@ -1,22 +1,35 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { characterById, characterTitle } from '@shared/characters.ts'
-import { SPACES, isDeed, spaceLabel } from '@shared/board.ts'
-import type { Action, DrawState, GameState, Seat, TradePack } from '@shared/types.ts'
+import { isDeed, spaceLabel } from '@shared/board.ts'
+import { isTradeWindow } from '@shared/rules.ts'
+import type { Action, MapId, DrawState, GameState, Seat, TradePack } from '@shared/types.ts'
 import { Board, type Piece } from './Board'
+import { Avatar } from './avatars'
+import { TradeBox } from './TradeBox'
 import { useFx } from './fx'
 import { useNet } from './net'
 import { sfx, unlockAudio } from './sound'
-import { useI18n } from './locale'
+import { BoardMapProvider, useI18n } from './locale'
 import { Bills, Deed, DicePair, Drawer, Log, Rules, debtOf, usd } from './widgets'
 
 const EMPTY: TradePack = { money: 0, spaceIds: [], cardIds: [] }
 
 export function App() {
   const net = useNet()
+  const [previewMap, setPreviewMap] = useState<MapId>('china')
+  const mapId = net.snap?.game?.rules.mapId ?? net.snap?.rules.mapId ?? previewMap
+  return (
+    <BoardMapProvider value={mapId}>
+      <AppContent mapId={mapId} setPreviewMap={setPreviewMap} />
+    </BoardMapProvider>
+  )
+}
+
+function AppContent({ mapId, setPreviewMap }: { mapId: MapId; setPreviewMap: (mapId: MapId) => void }) {
+  const net = useNet()
   const fx = useFx(net.snap)
   const [name, setName] = useState('')
   const [code, setCode] = useState(() => new URLSearchParams(location.search).get('room')?.toUpperCase() || '')
-  const [roomPassword, setRoomPassword] = useState('')
   const [gate, setGate] = useState('')
   const [selected, setSelected] = useState<number | null>(null)
   const [rulesOpen, setRulesOpen] = useState(false)
@@ -46,6 +59,17 @@ export function App() {
     controlled.find((p) => !p.bankrupt) ??
     controlled[0] ??
     null
+
+  useEffect(() => {
+    setConfirmLeave(false)
+  }, [snap?.code, game !== null])
+
+  useEffect(() => {
+    setTradeOpen(false)
+    setTradeTo('')
+    setOffer(EMPTY)
+    setWant(EMPTY)
+  }, [snap?.code, game?.currentId])
 
   useEffect(() => {
     const unlock = () => unlockAudio()
@@ -148,9 +172,9 @@ export function App() {
             if (gate.trim()) net.setSitePassword(gate.trim())
           }}
         >
-          <h1>{tx('家里的口令', 'House password')}</h1>
-          <p>{tx('不是账号，家里人知道就行。', 'Not an account. Anyone in the house knows it.')}</p>
-          <input value={gate} onChange={(event) => setGate(event.target.value)} type="password" placeholder={tx('口令', 'Password')} autoFocus />
+          <h1>{tx('访问密码', 'Access password')}</h1>
+          <p>{tx('输入共享密码，和朋友一起开局。', 'Enter the shared password to play with friends.')}</p>
+          <input value={gate} onChange={(event) => setGate(event.target.value)} type="password" placeholder={tx('访问密码', 'Password')} autoFocus />
           <button className="solid" type="submit">{tx('进入', 'Enter')}</button>
           {net.error && <p className="error">{say(net.error)}</p>}
         </form>
@@ -160,28 +184,27 @@ export function App() {
         <div className="stage">
           {screen === 'game' && game && you && (
             <aside className="panel left">
-              {controlled.length > 1 && <p className="bankline">{tx(`${you.name} 手头的钱`, `${you.name}'s cash`)}</p>}
+              {controlled.length > 1 && <p className="bankline">{tx(`${you.name} 的现金`, `${you.name}'s cash`)}</p>}
               <Bills amount={you.money} />
-              <p className="bankline">{tx(`银行还剩 ${game.houses} 栋房子 · ${game.hotels} 座旅馆`, `Bank: ${game.houses} houses · ${game.hotels} hotels`)}</p>
-              {game.rules.freeParking && <p className="bankline">{tx(`停车奖金 ${usd(game.pot)}`, `Free Parking ${usd(game.pot)}`)}</p>}
+              {game.rules.freeParking && <p className="bankline">{tx(`免费停车奖金 ${usd(game.pot)}`, `Free Parking pot: ${usd(game.pot)}`)}</p>}
               <Log lines={game.log} />
             </aside>
           )}
 
           <div className="board-slot">
             <Board pieces={pieces} selected={selected} game={game} onSelect={screen === 'game' ? setSelected : undefined}>
-              {screen === 'loading' && <p className="quiet">{tx('正在摆桌子……', 'Setting the table…')}</p>}
+              {screen === 'loading' && <p className="quiet">{tx('正在加载……', 'Getting the game ready…')}</p>}
               {screen === 'home' && (
                 <HomeMenu
+                  mapId={mapId}
+                  onMapChange={setPreviewMap}
                   name={name}
                   setName={setName}
                   code={code}
                   setCode={setCode}
-                  roomPassword={roomPassword}
-                  setRoomPassword={setRoomPassword}
                   error={net.error}
-                  onCreate={() => net.create(name.trim(), roomPassword)}
-                  onJoin={() => net.join(code.trim(), name.trim(), roomPassword)}
+                  onCreate={() => net.create(name.trim(), mapId)}
+                  onJoin={() => net.join(code.trim(), name.trim())}
                 />
               )}
               {screen === 'lobby' && snap?.draw && <DrawCeremony draw={snap.draw} />}
@@ -224,7 +247,7 @@ export function App() {
           {screen === 'game' && game && youId && (
             <aside className="panel right">
               {selected !== null && <Deed spaceId={selected} game={game} youId={youId} busy={busy} onAction={act} />}
-              {selected === null && <p className="hint">{tx('点一格，看地契、盖房或者抵押。', 'Click a space to see the deed, build, or mortgage.')}</p>}
+              {selected === null && <p className="hint">{tx('点击棋盘格，查看地契、建造或抵押房产。', 'Select a space to view its deed, build, or mortgage it.')}</p>}
               <Portfolio game={game} youId={youId} onPick={setSelected} />
               <TradeBox
                 open={tradeOpen}
@@ -242,7 +265,7 @@ export function App() {
               />
               {snap?.hostId === youId && (
                 <button type="button" className="text-button danger" onClick={() => net.emit('disband')}>
-                  {tx('解散这局', 'Disband')}
+                  {tx('结束本局', 'End game')}
                 </button>
               )}
             </aside>
@@ -261,13 +284,13 @@ export function App() {
       )}
 
       {rulesOpen && <Rules onClose={() => setRulesOpen(false)} />}
-      {confirmLeave && (
+      {confirmLeave && game && (
         <div className="modal" role="dialog">
           <article className="booklet confirm">
             <h2>{tx('要走了吗？', 'Leave the table?')}</h2>
-            <p>{tx('你带的角色会破产离场，别人继续玩。', 'Your characters go bankrupt and leave. The others keep playing.')}</p>
+            <p>{tx('离开后，你控制的所有角色将破产退出，其他玩家继续游戏。', 'All characters you control will go bankrupt. The other players will keep playing.')}</p>
             <div className="row">
-              <button type="button" className="solid" onClick={() => net.leave()}>{tx('离开', 'Leave')}</button>
+              <button type="button" className="solid" onClick={() => { setConfirmLeave(false); net.leave() }}>{tx('离开', 'Leave')}</button>
               <button type="button" onClick={() => setConfirmLeave(false)}>{tx('留下', 'Stay')}</button>
             </div>
           </article>
@@ -278,12 +301,12 @@ export function App() {
 }
 
 function HomeMenu(props: {
+  mapId: MapId
+  onMapChange: (mapId: MapId) => void
   name: string
   setName: (v: string) => void
   code: string
   setCode: (v: string) => void
-  roomPassword: string
-  setRoomPassword: (v: string) => void
   error: string | null
   onCreate: () => void
   onJoin: () => void
@@ -297,10 +320,10 @@ function HomeMenu(props: {
         props.onCreate()
       }}
     >
-      <p className="eyebrow">PRIVATE TABLE</p>
+      <p className="eyebrow">{tx('好友牌桌', 'PLAY WITH FRIENDS')}</p>
       <input value={props.name} onChange={(event) => props.setName(event.target.value)} maxLength={12} placeholder={tx('你的名字', 'Your name')} required />
-      <input value={props.roomPassword} onChange={(event) => props.setRoomPassword(event.target.value)} maxLength={32} placeholder={tx('房间密码，没有就留空', 'Room password, leave blank if none')} type="password" />
-      <button className="solid big" type="submit">{tx('新建房间', 'New room')}</button>
+      <MapPicker value={props.mapId} onChange={props.onMapChange} />
+      <button className="solid big" type="submit">{tx('新建房间', 'Create room')}</button>
       <div className="join-row">
         <input
           value={props.code}
@@ -317,6 +340,21 @@ function HomeMenu(props: {
       </div>
       {props.error && <p className="error">{say(props.error)}</p>}
     </form>
+  )
+}
+
+function MapPicker({ value, onChange, disabled = false }: {
+  value: MapId; onChange: (mapId: MapId) => void; disabled?: boolean
+}) {
+  const { tx } = useI18n()
+  return (
+    <label className="map-picker">
+      <span>{tx('游戏地图', 'Game map')}</span>
+      <select aria-label={tx('游戏地图', 'Game map')} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value as MapId)}>
+        <option value="china">{tx('中国地图', 'China')}</option>
+        <option value="usa">{tx('美国地图', 'United States')}</option>
+      </select>
+    </label>
   )
 }
 
@@ -340,14 +378,14 @@ function Lobby(props: {
   const copied = props.copied === 'code' ? tx('房间号已复制', 'Room code copied') : props.copied === 'link' ? tx('链接已复制', 'Link copied') : props.copied === 'fail' ? tx('复制失败', 'Copy failed') : ''
   return (
     <div className="menu lobby">
-      <p className="eyebrow">ROOM</p>
+      <p className="eyebrow">{tx('房间', 'ROOM')}</p>
       <h1>{props.code}</h1>
       <div className="row">
-        <button type="button" onClick={props.onCopyCode}>{tx('复制房号', 'Copy code')}</button>
+        <button type="button" onClick={props.onCopyCode}>{tx('复制房间号', 'Copy code')}</button>
         <button type="button" onClick={props.onCopyLink}>{tx('复制链接', 'Copy link')}</button>
       </div>
       {copied && <p className="quiet">{copied}</p>}
-      <p className="quiet">{tx('点下面的角色，想带几个就点几个。再点一下就取消。', 'Tap the characters below. Tap again to drop one.')}</p>
+      <p className="quiet">{tx('点击下方选择角色，可选择多个；再次点击即可取消。', 'Choose one or more characters below. Select again to deselect.')}</p>
       <ul className="seat-list">
         {props.seats.map((seat) => {
           const names = seat.characterIds.map((id) => {
@@ -359,14 +397,15 @@ function Lobby(props: {
             <li key={seat.id}>
               <span>{seat.name}</span>
               <em>{tag}{seat.connected ? '' : tx(' · 掉线', ' · offline')}</em>
-              {props.host && seat.id !== props.youId && <button type="button" onClick={() => props.onKick(seat.id)}>{tx('请出去', 'Remove')}</button>}
+              {props.host && seat.id !== props.youId && <button type="button" onClick={() => props.onKick(seat.id)}>{tx('移出房间', 'Remove')}</button>}
             </li>
           )
         })}
       </ul>
       <div className="rules-toggles">
+        <MapPicker value={props.rules.mapId} disabled={!props.host} onChange={(mapId) => props.onRules({ mapId })} />
         <label>
-          <span>{tx('开局的钱', 'Starting cash')}</span>
+          <span>{tx('初始资金', 'Starting cash')}</span>
           <select
             value={props.rules.startingMoney}
             disabled={!props.host}
@@ -379,19 +418,19 @@ function Lobby(props: {
         </label>
         <label>
           <input type="checkbox" checked={props.rules.auction} disabled={!props.host} onChange={(event) => props.onRules({ auction: event.target.checked })} />
-          <span>{tx('不买就拿去拍卖', 'Auction if unbought')}</span>
+          <span>{tx('未购买的房产自动拍卖', 'Auction unpurchased properties')}</span>
         </label>
         <label>
           <input type="checkbox" checked={props.rules.freeParking} disabled={!props.host} onChange={(event) => props.onRules({ freeParking: event.target.checked })} />
-          <span>{tx('停车格发奖金', 'Free Parking pot')}</span>
+          <span>{tx('启用免费停车奖金', 'Free Parking pot')}</span>
         </label>
       </div>
       {props.host ? (
         <button className="solid big" type="button" disabled={!ready} onClick={props.onStart}>
-          {picked < 2 ? tx('抽签，然后随便走走', 'Draw lots, then wander') : tx('抽签开局', 'Draw lots and start')}
+          {picked < 2 ? tx('抽签开始单人游戏', 'Start solo game') : tx('抽签开局', 'Draw for turn order')}
         </button>
       ) : (
-        <p className="quiet">{tx('等房主开始。', 'Waiting for the host.')}</p>
+        <p className="quiet">{tx('等待房主开始游戏。', 'Waiting for the host to start.')}</p>
       )}
       {props.error && <p className="error">{say(props.error)}</p>}
     </div>
@@ -416,9 +455,9 @@ function DrawCeremony({ draw }: { draw: DrawState }) {
   const { tx } = useI18n()
   return (
     <div className="menu draw">
-      <p className="eyebrow">{tx('抽签', 'LOTS')}</p>
-      <h1>{tx('号小的先走', 'Lowest number goes first')}</h1>
-      <p className="quiet">{tx('一个人带了几个角色，会跟别人岔开轮流，不会连着走。', 'If you play several characters, their turns are spaced apart.')}</p>
+      <p className="eyebrow">{tx('抽签', 'TURN ORDER')}</p>
+      <h1>{tx('按抽签号码从小到大行动', 'Lowest number goes first')}</h1>
+      <p className="quiet">{tx('如果一人控制多个角色，会与其他玩家的角色交替行动。', 'If you control multiple characters, their turns alternate with other players’ characters.')}</p>
       <ol className="lots">
         {draw.people.map((person, index) => {
           const open = index < shown
@@ -426,7 +465,7 @@ function DrawCeremony({ draw }: { draw: DrawState }) {
             <li key={person.seatId} className={open ? 'open' : ''}>
               <b>{open ? person.lot : '?'}</b>
               <strong>{person.name}</strong>
-              <em>{open ? person.names.join(tx('、', ', ')) : tx('签还盖着', 'Still covered')}</em>
+              <em>{open ? person.names.join(tx('、', ', ')) : tx('等待揭晓', 'Waiting to reveal')}</em>
             </li>
           )
         })}
@@ -459,9 +498,9 @@ function Center(props: {
   const debtor = game.players.find((p) => p.id === debt?.playerId)
   const owing = Boolean(debtor && debtor.controllerId === youId)
   const auction = game.auction
-  const space = SPACES[game.buySpaceId ?? auction?.spaceId ?? -1]
   const offline = current && !current.connected
-  const { tx, say, lang } = useI18n()
+  const { tx, say, lang, spaces } = useI18n()
+  const space = spaces[game.buySpaceId ?? auction?.spaceId ?? -1]
   const place = spaceLabel(space, lang)
   const placeShort = spaceLabel(space, lang, true)
   return (
@@ -474,27 +513,27 @@ function Center(props: {
       </p>
       {props.cardFace === 'back' && (
         <div className={`drawn is-back ${props.cardDeck || 'chance'}`} aria-hidden="true">
-          <span>{props.cardDeck === 'chest' ? tx('公益', 'Chest') : tx('机会', 'Chance')}</span>
+          <span>{props.cardDeck === 'chest' ? tx('公益金', 'Chest') : tx('机会', 'Chance')}</span>
           <b>？</b>
         </div>
       )}
       {props.card && props.cardFace !== 'back' && (
         <blockquote className={`drawn is-open ${props.card.deck}`}>
-          <span>{props.card.deck === 'chance' ? tx('机会', 'Chance') : tx('公益', 'Chest')}</span>
+          <span>{props.card.deck === 'chance' ? tx('机会', 'Chance') : tx('公益金', 'Chest')}</span>
           {lang === 'en' && props.card.en ? props.card.en : props.card.text}
         </blockquote>
       )}
       {props.notice === 'salary' && <p className="landing">{tx(`经过起点，领了 $${game.rules.salary}`, `Passed GO and collected $${game.rules.salary}`)}</p>}
       {props.notice === 'jail' && <p className="landing">{tx('进了监狱', 'Went to jail')}</p>}
-      {props.rolling && <p className="quiet">{tx('骰子还在转。', 'The dice are still rolling.')}</p>}
+      {props.rolling && <p className="quiet">{tx('正在掷骰子……', 'Rolling…')}</p>}
       {!props.busy && game.phase === 'ended' && yours === false && props.game.winnerId === youId && null}
       {!props.busy && game.phase !== 'ended' && (
         <div className="actions">
           {yours && game.phase === 'pre-roll' && you?.inJail && (
             <>
-              <button className="solid" type="button" onClick={() => props.onAction({ type: 'jail-pay' })}>{tx('交 $50 出来', 'Pay $50 to leave')}</button>
-              <button type="button" disabled={!you.heldCards.length} onClick={() => props.onAction({ type: 'jail-card' })}>{tx('用免罪卡', 'Use jail card')}</button>
-              <button type="button" onClick={() => props.onAction({ type: 'jail-roll' })}>{tx('赌一把双骰', 'Try for doubles')}</button>
+              <button className="solid" type="button" onClick={() => props.onAction({ type: 'jail-pay' })}>{tx('支付 $50 出狱', 'Pay $50 bail')}</button>
+              <button type="button" disabled={!you.heldCards.length} onClick={() => props.onAction({ type: 'jail-card' })}>{tx('使用免费出狱卡', 'Use Get Out of Jail Free card')}</button>
+              <button type="button" onClick={() => props.onAction({ type: 'jail-roll' })}>{tx('尝试掷出相同点数', 'Try for doubles')}</button>
             </>
           )}
           {yours && game.phase === 'pre-roll' && !you?.inJail && (
@@ -503,20 +542,23 @@ function Center(props: {
           {yours && game.phase === 'post-roll' && game.extraRoll && (
             <button className="solid big" type="button" onClick={() => props.onAction({ type: 'roll' })}>{tx('再掷一次', 'Roll again')}</button>
           )}
-          {yours && game.phase === 'post-roll' && !game.extraRoll && (
-            <button className="solid" type="button" onClick={() => props.onAction({ type: 'end-turn' })}>{tx('这回合结束', 'End turn')}</button>
+          {yours && isTradeWindow(game) && (
+            <>
+              {!game.trade && <p className="trade-hint">{tx('现在可以选择发起交易！', 'You can choose to trade now!')}</p>}
+              <button className="solid" type="button" disabled={Boolean(game.trade)} onClick={() => props.onAction({ type: 'end-turn' })}>{tx('结束回合', 'End turn')}</button>
+            </>
           )}
           {yours && game.phase === 'buy' && space && (
             <>
               <button className="solid" type="button" disabled={(you?.money || 0) < (space.price || 0)} onClick={() => props.onAction({ type: 'buy' })}>
                 {tx(`花 ${usd(space.price || 0)} 买下${placeShort}`, `Buy ${placeShort} for ${usd(space.price || 0)}`)}
               </button>
-              <button type="button" onClick={() => props.onAction({ type: 'decline' })}>{game.rules.auction ? tx('不买，拿去拍卖', 'Auction it') : tx('不买了', 'Pass')}</button>
+              <button type="button" onClick={() => props.onAction({ type: 'decline' })}>{game.rules.auction ? tx('放弃购买，开始拍卖', 'Auction it') : tx('放弃购买', 'Pass')}</button>
             </>
           )}
           {game.phase === 'auction' && auction && (
             <div className="auction">
-              <p>{place} · {tx('现在', 'now')} {auction.highBid ? usd(auction.highBid) : tx('还没人喊', 'no bids yet')}</p>
+              <p>{place} · {tx('当前出价', 'High bid:')} {auction.highBid ? usd(auction.highBid) : tx('暂无出价', 'no bids yet')}</p>
               {game.players.find((p) => p.id === auction.turnId)?.controllerId === youId ? (
                 <div className="join-row">
                   <input
@@ -526,10 +568,10 @@ function Center(props: {
                     onChange={(event) => props.setBid(Number(event.target.value))}
                   />
                   <button className="solid" type="button" onClick={() => props.onAction({ type: 'bid', amount: props.bid })}>{tx('出价', 'Bid')}</button>
-                  <button type="button" onClick={() => props.onAction({ type: 'pass' })}>{tx('不要', 'Pass')}</button>
+                  <button type="button" onClick={() => props.onAction({ type: 'pass' })}>{tx('放弃竞拍', 'Pass')}</button>
                 </div>
               ) : (
-                <p className="quiet">{tx(`等 ${game.players.find((p) => p.id === auction.turnId)?.name} 喊价。`, `Waiting for ${game.players.find((p) => p.id === auction.turnId)?.name} to bid.`)}</p>
+                <p className="quiet">{tx(`等待 ${game.players.find((p) => p.id === auction.turnId)?.name} 出价。`, `Waiting for ${game.players.find((p) => p.id === auction.turnId)?.name} to bid.`)}</p>
               )}
             </div>
           )}
@@ -538,9 +580,9 @@ function Center(props: {
               <p>{tx(`${debtor?.name} 要付 ${usd(debt.amount)}（${debt.reason}）`, `${debtor?.name} owes ${usd(debt.amount)} (${say(debt.reason)})`)}</p>
               {owing && (
                 <>
-                  <button className="solid" type="button" disabled={(debtor?.money || 0) < debt.amount} onClick={() => props.onAction({ type: 'pay-debt' })}>{tx('付掉', 'Pay')}</button>
-                  <button type="button" onClick={() => props.onAction({ type: 'bankrupt' })}>{tx('破产', 'Bankrupt')}</button>
-                  <p className="quiet">{tx('钱不够的话，先在右边卖房或抵押。', 'If you are short, sell or mortgage on the right.')}</p>
+                  <button className="solid" type="button" disabled={(debtor?.money || 0) < debt.amount} onClick={() => props.onAction({ type: 'pay-debt' })}>{tx('支付欠款', 'Pay')}</button>
+                  <button type="button" onClick={() => props.onAction({ type: 'bankrupt' })}>{tx('申请破产', 'Declare bankruptcy')}</button>
+                  <p className="quiet">{tx('现金不足时，可在右侧出售建筑或抵押房产。', 'Need cash? Sell buildings or mortgage properties in the side panel.')}</p>
                 </>
               )}
             </div>
@@ -549,12 +591,12 @@ function Center(props: {
             <TradeNotice game={game} youId={youId} onAction={props.onAction} />
           )}
           {offline && (
-            <button type="button" onClick={() => props.onAction({ type: 'skip-offline' })}>{tx('这人掉线了，先跳过', 'They are offline. Skip')}</button>
+            <button type="button" onClick={() => props.onAction({ type: 'skip-offline' })}>{tx('玩家已掉线，跳过本回合', 'Skip offline player')}</button>
           )}
         </div>
       )}
       {game.phase === 'ended' && props.game.players.length > 0 && (
-        <p className="quiet">{tx('房主可以在右边解散，回房间再来一局。', 'The host can disband on the right and start another game.')}</p>
+        <p className="quiet">{tx('房主可在右侧结束本局，返回房间后重新开始。', 'The host can end this game from the side panel, then start a new one in the lobby.')}</p>
       )}
       {props.error && <p className="error">{say(props.error)}</p>}
     </div>
@@ -562,38 +604,41 @@ function Center(props: {
 }
 
 function TradeNotice({ game, youId, onAction }: { game: GameState; youId: string; onAction: (a: Action) => void }) {
+  const { tx, lang, spaces } = useI18n()
   const trade = game.trade
   if (!trade) return null
   const from = game.players.find((p) => p.id === trade.from)
   const to = game.players.find((p) => p.id === trade.to)
-  const { tx, lang } = useI18n()
-  const names = (ids: number[]) => ids.map((id) => spaceLabel(SPACES[id], lang, true)).filter(Boolean).join(tx('、', ', ')) || tx('没地', 'no property')
+  const names = (ids: number[]) => ids.map((id) => spaceLabel(spaces[id], lang, true)).filter(Boolean).join(tx('、', ', ')) || tx('无房产', 'no property')
   return (
     <div className="trade-note">
-      <p>{tx(`${from?.name} 想跟 ${to?.name} 换`, `${from?.name} wants to trade with ${to?.name}`)}</p>
-      <p>{tx('拿出', 'Offers')} {usd(trade.offer.money)} · {names(trade.offer.spaceIds)}</p>
-      <p>{tx('想要', 'Wants')} {usd(trade.want.money)} · {names(trade.want.spaceIds)}</p>
+      <p>{tx(`${from?.name} 向 ${to?.name} 发起交易`, `${from?.name} wants to trade with ${to?.name}`)}</p>
+      <p>{tx('提供', 'Offers')} {usd(trade.offer.money)} · {names(trade.offer.spaceIds)}</p>
+      <p>{tx('请求', 'Wants')} {usd(trade.want.money)} · {names(trade.want.spaceIds)}</p>
       {to?.controllerId === youId && (
         <div className="row">
           <button className="solid" type="button" onClick={() => onAction({ type: 'respond-trade', accept: true })}>{tx('接受', 'Accept')}</button>
           <button type="button" onClick={() => onAction({ type: 'respond-trade', accept: false })}>{tx('拒绝', 'Decline')}</button>
         </div>
       )}
-      {from?.controllerId === youId && <button type="button" onClick={() => onAction({ type: 'cancel-trade' })}>{tx('算了', 'Cancel')}</button>}
+      {from?.controllerId === youId && <button type="button" onClick={() => onAction({ type: 'cancel-trade' })}>{tx('取消交易', 'Cancel')}</button>}
     </div>
   )
 }
 
 function Portfolio({ game, youId, onPick }: { game: GameState; youId: string; onPick: (id: number) => void }) {
-  const { tx, lang } = useI18n()
+  const { tx, lang, spaces } = useI18n()
   const mine = game.players.filter((player) => player.controllerId === youId && !player.bankrupt)
   return (
     <div className="portfolio">
       {mine.map((player) => {
-        const owned = SPACES.filter((space) => isDeed(space) && game.plots[space.id]?.ownerId === player.id)
+        const owned = spaces.filter((space) => isDeed(space) && game.plots[space.id]?.ownerId === player.id)
         return (
           <div key={player.id}>
-            <h3>{tx(`${player.name}的地`, `${player.name}'s lots`)} {owned.length}</h3>
+            <h3>
+              <Avatar id={player.characterId} size={28} />
+              <span>{tx(`${player.name}的房产`, `${player.name}'s properties`)}</span>
+            </h3>
             <div className="chips">
               {owned.map((space) => (
                 <button key={space.id} type="button" onClick={() => onPick(space.id)}>
@@ -602,103 +647,14 @@ function Portfolio({ game, youId, onPick }: { game: GameState; youId: string; on
                   {(game.plots[space.id]?.houses || 0) > 0 ? `·${game.plots[space.id]!.houses === 5 ? tx('旅', 'H') : game.plots[space.id]!.houses}` : ''}
                 </button>
               ))}
-              {!owned.length && <span className="quiet">{tx('还没买地。', 'No property yet.')}</span>}
+              {!owned.length && <span className="quiet">{tx('暂无房产。', 'No property yet.')}</span>}
             </div>
-            {player.heldCards.length > 0 && <p className="quiet">{tx(`免罪卡 ${player.heldCards.length} 张`, `${player.heldCards.length} jail card${player.heldCards.length === 1 ? '' : 's'}`)}</p>}
+            {player.heldCards.length > 0 && <p className="quiet">{tx(`免费出狱卡 ${player.heldCards.length} 张`, `${player.heldCards.length} Get Out of Jail Free card${player.heldCards.length === 1 ? '' : 's'}`)}</p>}
           </div>
         )
       })}
     </div>
   )
-}
-
-function TradeBox(props: {
-  open: boolean
-  setOpen: (v: boolean) => void
-  game: GameState
-  youId: string
-  tradeTo: string
-  setTradeTo: (id: string) => void
-  offer: TradePack
-  want: TradePack
-  setOffer: (pack: TradePack) => void
-  setWant: (pack: TradePack) => void
-  busy: boolean
-  onAction: (action: Action) => void
-}) {
-  const actor = props.game.players.find((p) => p.id === props.game.currentId && p.controllerId === props.youId)
-  const others = props.game.players.filter((p) => p.id !== actor?.id && !p.bankrupt)
-  const mine = SPACES.filter((space) => isDeed(space) && actor && props.game.plots[space.id]?.ownerId === actor.id)
-  const theirs = SPACES.filter((space) => isDeed(space) && props.game.plots[space.id]?.ownerId === props.tradeTo)
-  const myCards = actor?.heldCards ?? []
-  const theirCards = props.game.players.find((p) => p.id === props.tradeTo)?.heldCards ?? []
-  const { tx, lang } = useI18n()
-  if (props.game.phase === 'ended') return null
-  return (
-    <div className="trade-box">
-      <button type="button" className="text-button" onClick={() => props.setOpen(!props.open)}>
-        {props.open ? tx('收起', 'Close') : tx('换东西', 'Trade')}
-      </button>
-      {props.open && (
-        <div className="trade-form">
-          <select value={props.tradeTo} onChange={(event) => props.setTradeTo(event.target.value)}>
-            <option value="">{tx('跟谁换', 'Trade with')}</option>
-            {others.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-          <label>{tx('你出的钱', 'You offer')} <input type="number" min={0} value={props.offer.money} onChange={(event) => props.setOffer({ ...props.offer, money: Number(event.target.value) })} /></label>
-          <div className="chips">
-            {mine.map((space) => (
-              <label key={space.id}><input type="checkbox" checked={props.offer.spaceIds.includes(space.id)} onChange={() => props.setOffer({ ...props.offer, spaceIds: toggle(props.offer.spaceIds, space.id) })} />{spaceLabel(space, lang, true)}</label>
-            ))}
-          </div>
-          {myCards.length > 0 && (
-            <div className="chips">
-              {myCards.map((card) => (
-                <label key={card.id}>
-                  <input type="checkbox" checked={props.offer.cardIds.includes(card.id)} onChange={() => props.setOffer({ ...props.offer, cardIds: toggleText(props.offer.cardIds, card.id) })} />
-                  {tx('我的免罪卡', 'My jail card')}
-                </label>
-              ))}
-            </div>
-          )}
-          <label>{tx('你要的钱', 'You want')} <input type="number" min={0} value={props.want.money} onChange={(event) => props.setWant({ ...props.want, money: Number(event.target.value) })} /></label>
-          <div className="chips">
-            {theirs.map((space) => (
-              <label key={space.id}><input type="checkbox" checked={props.want.spaceIds.includes(space.id)} onChange={() => props.setWant({ ...props.want, spaceIds: toggle(props.want.spaceIds, space.id) })} />{spaceLabel(space, lang, true)}</label>
-            ))}
-          </div>
-          {theirCards.length > 0 && (
-            <div className="chips">
-              {theirCards.map((card) => (
-                <label key={card.id}>
-                  <input type="checkbox" checked={props.want.cardIds.includes(card.id)} onChange={() => props.setWant({ ...props.want, cardIds: toggleText(props.want.cardIds, card.id) })} />
-                  {tx('对方的免罪卡', 'Their jail card')}
-                </label>
-              ))}
-            </div>
-          )}
-          <button
-            className="solid"
-            type="button"
-            disabled={props.busy || !props.tradeTo || (props.game.phase !== 'pre-roll' && props.game.phase !== 'post-roll')}
-            onClick={() => props.onAction({ type: 'trade', to: props.tradeTo, offer: props.offer, want: props.want })}
-          >
-            {tx('提出来', 'Offer')}
-          </button>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function toggle(list: number[], id: number) {
-  return list.includes(id) ? list.filter((item) => item !== id) : [...list, id]
-}
-
-function toggleText(list: string[], id: string) {
-  return list.includes(id) ? list.filter((item) => item !== id) : [...list, id]
 }
 
 type ShownCard = { id: string; deck: 'chance' | 'chest'; text: string; en?: string }

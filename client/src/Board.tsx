@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react'
-import { GROUPS, SPACES, spaceLabel } from '@shared/board.ts'
+import { GROUPS, spaceLabel } from '@shared/board.ts'
 import { characterById } from '@shared/characters.ts'
 import type { GameState } from '@shared/types.ts'
 import { Avatar } from './avatars'
 import { useI18n } from './locale'
+import { boardIcon } from './boardIcons'
 
 export interface Piece {
   id: string
@@ -41,11 +42,11 @@ export function Board({
   onSelect?: (id: number) => void
   children?: ReactNode
 }) {
-  const { lang, tx } = useI18n()
+  const { lang, tx, spaces, mapId } = useI18n()
   return (
-    <div className="board">
+    <div className="board" data-map={mapId}>
       <div className="grid">
-        {SPACES.map((space) => {
+        {spaces.map((space) => {
           const here = pieces.filter((piece) => piece.position === space.id)
           const plot = game?.plots[space.id]
           const group = space.group ? GROUPS[space.group] : null
@@ -53,6 +54,7 @@ export function Board({
           const ownerColor = owner ? characterById(owner.characterId)?.color : undefined
           const corner = space.id % 10 === 0
           const label = spaceLabel(space, lang, true)
+          const icon = boardIcon(space, mapId)
           return (
             <button
               key={space.id}
@@ -62,6 +64,8 @@ export function Board({
                 sideOf(space.id),
                 corner ? 'corner' : '',
                 space.type,
+                icon ? 'has-icon' : '',
+                space.type === 'property' || space.type === 'railroad' ? 'edge-icon' : '',
                 plot?.mortgaged ? 'is-mortgaged' : '',
                 selected === space.id ? 'is-selected' : '',
               ].filter(Boolean).join(' ')}
@@ -70,17 +74,18 @@ export function Board({
               onClick={() => onSelect?.(space.id)}
             >
               {group && <i className="bar" style={{ background: group.color }} />}
+              {icon && <img className="tile-icon" src={icon} alt="" aria-hidden="true" draggable={false} decoding="async" />}
               <span className="tile-body" style={ownerColor ? { background: ownerColor } : undefined}>
                 {space.type === 'go' && (
                   <span className="corner-go">
                     <strong>{tx('起点', 'GO')}</strong>
-                    <em>{tx('经过 +$200', 'Pass +$200')}</em>
+                    <em>{tx('经过 +$200', 'Collect $200')}</em>
                   </span>
                 )}
                 {space.type === 'jail' && (
                   <span className="corner-jail">
                     <strong>{tx('监狱', 'Jail')}</strong>
-                    <em>{tx('探监路过', 'Just visiting')}</em>
+                    <em>{tx('只是路过', 'Just visiting')}</em>
                   </span>
                 )}
                 {space.type === 'parking' && (
@@ -91,11 +96,11 @@ export function Board({
                 )}
                 {space.type === 'gotojail' && (
                   <span className="corner-gojail">
-                    <strong>{tx('进监狱', 'Go to Jail')}</strong>
+                    <strong>{tx('前往监狱', 'Go to Jail')}</strong>
                   </span>
                 )}
-                {space.type === 'chance' && <Mark kind="?" label={tx('机会', 'Chance')} />}
-                {space.type === 'chest' && <Mark kind={tx('箱', 'C')} label={tx('公益', 'Chest')} />}
+                {space.type === 'chance' && <span className="tname">{tx('机会', 'Chance')}</span>}
+                {space.type === 'chest' && <span className="tname">{tx('公益金', 'Chest')}</span>}
                 {(space.type === 'railroad' || space.type === 'utility' || space.type === 'tax') && (
                   <>
                     <span className={label.length > 9 ? 'tname is-long' : 'tname'}>{label}</span>
@@ -110,7 +115,7 @@ export function Board({
                   </>
                 )}
                 {plot && plot.houses > 0 && <Buildings count={plot.houses} />}
-                {plot?.mortgaged && <span className="stamp">押</span>}
+                {plot?.mortgaged && <span className="stamp">{tx('押', 'M')}</span>}
               </span>
               {here.length > 0 && (
                 <span className="pieces">
@@ -143,15 +148,6 @@ export function Board({
         </div>
       </div>
     </div>
-  )
-}
-
-function Mark({ kind, label }: { kind: string; label: string }) {
-  return (
-    <span className="mark">
-      <b>{kind}</b>
-      <small>{label}</small>
-    </span>
   )
 }
 

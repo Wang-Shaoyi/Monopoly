@@ -1,6 +1,10 @@
 import { RAILROAD_IDS, SPACES, UTILITY_IDS, isDeed, spacesInGroup } from './board.ts'
 import type { GameState, GroupId, Space } from './types.ts'
 
+export function isTradeWindow(game: GameState): boolean {
+  return game.phase === 'post-roll' && !game.extraRoll
+}
+
 export function interestOf(mortgage: number): number {
   return Math.ceil(mortgage / 10)
 }
@@ -66,45 +70,45 @@ export function buildIssue(state: GameState, playerId: string, spaceId: number):
   const space = SPACES[spaceId]
   const plot = state.plots[spaceId]
   const who = player(state, playerId)
-  if (!space || !plot || !who) return '没有这块地'
-  if (space.type !== 'property' || !space.group || !space.houseCost) return '这里不能盖房子'
-  if (plot.ownerId !== playerId) return '这不是你的地'
+  if (!space || !plot || !who) return '找不到该地块'
+  if (space.type !== 'property' || !space.group || !space.houseCost) return '该地块无法建造房屋'
+  if (plot.ownerId !== playerId) return '该房产不属于你'
   if (who.bankrupt) return '你已经破产了'
-  if (!ownsFullGroup(state, playerId, space.group)) return '要先集齐这一组'
-  if (groupHasMortgage(state, space.group)) return '这组还有地押着，先别盖'
-  if (plot.houses >= 5) return '已经是旅馆了'
+  if (!ownsFullGroup(state, playerId, space.group)) return '请先集齐该颜色组的所有房产'
+  if (groupHasMortgage(state, space.group)) return '同组有房产已抵押，请先全部赎回'
+  if (plot.houses >= 5) return '该地块已建有旅馆'
   const counts = spacesInGroup(space.group).map((s) => state.plots[s.id]?.houses ?? 0)
   const min = Math.min(...counts)
-  if (plot.houses !== min) return '先给同组房子更少的地盖'
+  if (plot.houses !== min) return '请先在同组房屋较少的地块建造'
   if (who.money < space.houseCost) return '现金不够'
   if (plot.houses === 4) {
-    if (state.hotels < 1) return '银行的旅馆没了'
-  } else if (state.houses < 1) return '银行的房子没了'
+    if (state.hotels < 1) return '银行已无可用旅馆'
+  } else if (state.houses < 1) return '银行已无可用房屋'
   return null
 }
 
 export function sellIssue(state: GameState, playerId: string, spaceId: number): string | null {
   const space = SPACES[spaceId]
   const plot = state.plots[spaceId]
-  if (!space || !plot) return '没有这块地'
-  if (space.type !== 'property' || !space.group) return '这上面没房子'
-  if (plot.ownerId !== playerId) return '这不是你的地'
-  if (plot.houses <= 0) return '没有房子可卖'
+  if (!space || !plot) return '找不到该地块'
+  if (space.type !== 'property' || !space.group) return '该地块没有可出售的建筑'
+  if (plot.ownerId !== playerId) return '该房产不属于你'
+  if (plot.houses <= 0) return '没有可出售的建筑'
   const counts = spacesInGroup(space.group).map((s) => state.plots[s.id]?.houses ?? 0)
   const max = Math.max(...counts)
-  if (plot.houses !== max) return '先卖同组房子更多的地'
-  if (plot.houses === 5 && state.houses < 4) return '银行房子不够，旅馆先拆不了'
+  if (plot.houses !== max) return '请先出售同组房屋较多地块上的建筑'
+  if (plot.houses === 5 && state.houses < 4) return '银行房屋不足，暂时无法将旅馆换回四栋房屋'
   return null
 }
 
 export function mortgageIssue(state: GameState, playerId: string, spaceId: number): string | null {
   const space = SPACES[spaceId]
   const plot = state.plots[spaceId]
-  if (!space || !plot) return '没有这块地'
-  if (!isDeed(space) || !space.mortgage) return '这格不能抵押'
-  if (plot.ownerId !== playerId) return '这不是你的地'
-  if (plot.mortgaged) return '已经押过了'
-  if (space.group && groupHouseTotal(state, space.group) > 0) return '先把这组的房子卖掉'
+  if (!space || !plot) return '找不到该地块'
+  if (!isDeed(space) || !space.mortgage) return '该地块无法抵押'
+  if (plot.ownerId !== playerId) return '该房产不属于你'
+  if (plot.mortgaged) return '该房产已抵押'
+  if (space.group && groupHouseTotal(state, space.group) > 0) return '请先出售该颜色组的所有建筑'
   return null
 }
 
@@ -112,10 +116,10 @@ export function unmortgageIssue(state: GameState, playerId: string, spaceId: num
   const space = SPACES[spaceId]
   const plot = state.plots[spaceId]
   const who = player(state, playerId)
-  if (!space || !plot || !who) return '没有这块地'
-  if (plot.ownerId !== playerId) return '这不是你的地'
-  if (!plot.mortgaged) return '这地没抵押'
-  if (who.money < unmortgageCost(space)) return '钱不够赎回'
+  if (!space || !plot || !who) return '找不到该地块'
+  if (plot.ownerId !== playerId) return '该房产不属于你'
+  if (!plot.mortgaged) return '该房产未抵押'
+  if (who.money < unmortgageCost(space)) return '现金不足，无法赎回房产'
   return null
 }
 

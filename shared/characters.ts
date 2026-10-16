@@ -7,7 +7,7 @@ export const CHARACTERS: Character[] = [
     english: 'Shibagy',
     color: '#fddf98',
     ink: '#3a2a16',
-    blurb: '见了起点就想冲过去。',
+    blurb: '一到起点附近，就惦记着领钱。',
   },
   {
     id: 'ada',
@@ -15,7 +15,7 @@ export const CHARACTERS: Character[] = [
     english: 'Ada',
     color: '#fdd1d0',
     ink: '#3a1620',
-    blurb: '租金算到个位，一分不让。',
+    blurb: '租金算得清清楚楚，一分也不能少。',
   },
   {
     id: 'erchai',
@@ -23,7 +23,7 @@ export const CHARACTERS: Character[] = [
     english: 'Erchai',
     color: '#b4cad7',
     ink: '#1d2833',
-    blurb: '看着慢，买起街来比谁都稳。',
+    blurb: '平时慢悠悠，买地从不犹豫。',
   },
   {
     id: 'orangie',
@@ -31,7 +31,7 @@ export const CHARACTERS: Character[] = [
     english: 'Orangie',
     color: '#cfe7c2',
     ink: '#243024',
-    blurb: '专挑暖色的街停下。',
+    blurb: '偏爱暖色地块，路过也想买下。',
   },
   {
     id: 'tutu',
@@ -39,7 +39,7 @@ export const CHARACTERS: Character[] = [
     english: 'Tutu',
     color: '#dfd0e8',
     ink: '#2c2233',
-    blurb: '停车格也要转一圈看看。',
+    blurb: '就算免费停车，也要四处逛逛。',
   },
   {
     id: 'ginger',
@@ -47,7 +47,7 @@ export const CHARACTERS: Character[] = [
     english: 'Ginger',
     color: '#e2e0dc',
     ink: '#2c2a28',
-    blurb: '铁路和电厂都想揣进口袋。',
+    blurb: '车站、电厂，统统想收入囊中。',
   },
 ]
 
