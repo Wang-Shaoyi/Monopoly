@@ -104,11 +104,10 @@ export function Deed({
   const rent = plot?.ownerId ? computeRent(game, spaceId, diceSum) : null
   const yours = owner?.controllerId === youId && Boolean(owner)
   const phaseOk = game.phase === 'pre-roll' || game.phase === 'post-roll' || game.phase === 'buy' || game.phase === 'auction' || game.phase === 'debt'
-  const tint = owner ? characterById(owner.characterId) : undefined
   const rentLabels = lang === 'en' ? ['Rent', '1 house', '2 houses', '3 houses', '4 houses', 'Hotel'] : ['租金', '一栋', '两栋', '三栋', '四栋', '旅馆']
   return (
     <article className="deed">
-      <header style={{ background: tint?.color || group?.color || '#5c5148', color: tint?.ink || '#fff' }}>
+      <header style={{ background: group?.color || '#5c5148' }}>
         <span>{group ? (lang === 'en' ? group.en : group.label) : space.type === 'railroad' ? tx('铁路', 'Station') : space.type === 'utility' ? tx('公用', 'Utility') : tx('格子', 'Space')}</span>
         <strong>{spaceLabel(space, lang)}</strong>
       </header>

@@ -51,7 +51,6 @@ export function Board({
           const group = space.group ? GROUPS[space.group] : null
           const owner = game?.players.find((player) => player.id === plot?.ownerId)
           const ownerColor = owner ? characterById(owner.characterId)?.color : undefined
-          const barColor = ownerColor || group?.color
           const corner = space.id % 10 === 0
           const label = spaceLabel(space, lang, true)
           return (
@@ -70,8 +69,8 @@ export function Board({
               title={spaceLabel(space, lang)}
               onClick={() => onSelect?.(space.id)}
             >
-              {barColor && <i className="bar" style={{ background: barColor }} />}
-              <span className="tile-body">
+              {group && <i className="bar" style={{ background: group.color }} />}
+              <span className="tile-body" style={ownerColor ? { background: ownerColor } : undefined}>
                 {space.type === 'go' && (
                   <span className="corner-go">
                     <strong>{tx('起点', 'GO')}</strong>
