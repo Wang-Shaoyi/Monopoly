@@ -45,8 +45,8 @@ export const CHARACTERS: Character[] = [
     id: 'ginger',
     name: '小金',
     english: 'Ginger',
-    color: '#3f8f62',
-    ink: '#f6f3ea',
+    color: '#8a8680',
+    ink: '#f7f4ee',
     blurb: '铁路和电厂都想揣进口袋。',
   },
 ]

@@ -143,6 +143,7 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   white-space: nowrap;
   letter-spacing: -0.04em;
 }
+.tname.is-long { font-size: 8px; letter-spacing: -0.06em; }
 .tprice, .tile em, .mark small { color: #6d6258; font-style: normal; }
 .mark b {
   font-family: var(--serif);

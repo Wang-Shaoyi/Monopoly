@@ -26,6 +26,8 @@ export interface Space {
   id: number
   name: string
   short: string
+  en: string
+  enShort: string
   type: SpaceType
   group?: GroupId
   price?: number
@@ -75,6 +77,7 @@ export interface Card {
   id: string
   deck: Deck
   text: string
+  en: string
   effect: CardEffect
 }
 
@@ -152,11 +155,13 @@ export interface ShownCard {
   id: string
   deck: Deck
   text: string
+  en?: string
 }
 
 export interface LogLine {
   id: number
   text: string
+  en?: string
   at: number
 }
 
@@ -195,8 +200,8 @@ export interface GameState {
 
 export type GameEvent =
   | { type: 'dice'; playerId: string; dice: [number, number] }
-  | { type: 'move'; playerId: string; path: number[] }
-  | { type: 'card'; playerId: string; deck: Deck; text: string }
+  | { type: 'move'; playerId: string; path: number[]; jump?: boolean }
+  | { type: 'card'; playerId: string; deck: Deck; text: string; en: string }
   | { type: 'jail'; playerId: string }
 
 export type Action =

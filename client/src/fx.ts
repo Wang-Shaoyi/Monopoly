@@ -72,7 +72,6 @@ export function useFx(snap: Snapshot | null) {
     }
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const pace = (ms: number) => wait(reduce ? 0 : ms)
-    const salary = current.game.rules.salary
     const my = ++runRef.current
     setAnimating(true)
     void (async () => {
@@ -88,26 +87,42 @@ export function useFx(snap: Snapshot | null) {
           setRolling(false)
         } else if (event.type === 'move') {
           const path = event.path
-          for (let i = 0; i < path.length; i++) {
+          if (event.jump) {
+            const dest = path[path.length - 1]
+            const passed = path.includes(0)
             if (runRef.current !== my) return
-            const pos = path[i]
-            const last = i === path.length - 1
-            if (pos !== 0) setNotice(null)
-            setTokens((prev) => ({ ...prev, [event.playerId]: pos }))
-            if (pos === 0) {
+            sfx.taps(3)
+            setTokens((prev) => ({ ...prev, [event.playerId]: dest! }))
+            if (passed) {
               sfx.coin()
-              setNotice(`经过起点，领了 $${salary}`)
+              setNotice('salary')
               await pace(GO_MS)
-            } else if (last) {
+            } else {
               sfx.land()
               await pace(LAND_MS)
-            } else {
-              sfx.step()
-              await pace(STEP_MS)
+            }
+          } else {
+            for (let i = 0; i < path.length; i++) {
+              if (runRef.current !== my) return
+              const pos = path[i]
+              const last = i === path.length - 1
+              if (pos !== 0) setNotice(null)
+              setTokens((prev) => ({ ...prev, [event.playerId]: pos }))
+              if (pos === 0) {
+                sfx.coin()
+                setNotice('salary')
+                await pace(GO_MS)
+              } else if (last) {
+                sfx.land()
+                await pace(LAND_MS)
+              } else {
+                sfx.step()
+                await pace(STEP_MS)
+              }
             }
           }
         } else if (event.type === 'jail') {
-          setNotice('进了监狱')
+          setNotice('jail')
           setTokens((prev) => ({ ...prev, [event.playerId]: 10 }))
           sfx.jail()
           await pace(JAIL_MS)
@@ -121,7 +136,7 @@ export function useFx(snap: Snapshot | null) {
           sfx.shuffle()
           await pace(CARD_BACK_MS)
           if (runRef.current !== my) return
-          setCard({ id: `${current.rev}-${event.text}`, deck: event.deck, text: event.text })
+          setCard({ id: `${current.rev}-${event.text}`, deck: event.deck, text: event.text, en: event.en })
           setCardFace('open')
           sfx.reveal()
           await pace(CARD_READ_MS)

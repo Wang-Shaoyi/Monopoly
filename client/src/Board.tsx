@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react'
-import { GROUPS, SPACES } from '@shared/board.ts'
+import { GROUPS, SPACES, spaceLabel } from '@shared/board.ts'
+import { characterById } from '@shared/characters.ts'
 import type { GameState } from '@shared/types.ts'
 import { Avatar } from './avatars'
+import { useI18n } from './locale'
 
 export interface Piece {
   id: string
@@ -39,6 +41,7 @@ export function Board({
   onSelect?: (id: number) => void
   children?: ReactNode
 }) {
+  const { lang, tx } = useI18n()
   return (
     <div className="board">
       <div className="grid">
@@ -46,7 +49,11 @@ export function Board({
           const here = pieces.filter((piece) => piece.position === space.id)
           const plot = game?.plots[space.id]
           const group = space.group ? GROUPS[space.group] : null
+          const owner = game?.players.find((player) => player.id === plot?.ownerId)
+          const ownerColor = owner ? characterById(owner.characterId)?.color : undefined
+          const barColor = ownerColor || group?.color
           const corner = space.id % 10 === 0
+          const label = spaceLabel(space, lang, true)
           return (
             <button
               key={space.id}
@@ -60,46 +67,46 @@ export function Board({
                 selected === space.id ? 'is-selected' : '',
               ].filter(Boolean).join(' ')}
               style={cellOf(space.id)}
-              title={space.name}
+              title={spaceLabel(space, lang)}
               onClick={() => onSelect?.(space.id)}
             >
-              {group && <i className="bar" style={{ background: group.color }} />}
+              {barColor && <i className="bar" style={{ background: barColor }} />}
               <span className="tile-body">
                 {space.type === 'go' && (
                   <span className="corner-go">
-                    <strong>起点</strong>
-                    <em>经过 +$200</em>
+                    <strong>{tx('起点', 'GO')}</strong>
+                    <em>{tx('经过 +$200', 'Pass +$200')}</em>
                   </span>
                 )}
                 {space.type === 'jail' && (
                   <span className="corner-jail">
-                    <strong>监狱</strong>
-                    <em>探监路过</em>
+                    <strong>{tx('监狱', 'Jail')}</strong>
+                    <em>{tx('探监路过', 'Just visiting')}</em>
                   </span>
                 )}
                 {space.type === 'parking' && (
                   <span className="corner-park">
-                    <strong>免费</strong>
-                    <em>停车</em>
+                    <strong>{tx('免费', 'Free')}</strong>
+                    <em>{tx('停车', 'Parking')}</em>
                   </span>
                 )}
                 {space.type === 'gotojail' && (
                   <span className="corner-gojail">
-                    <strong>进监狱</strong>
+                    <strong>{tx('进监狱', 'Go to Jail')}</strong>
                   </span>
                 )}
-                {space.type === 'chance' && <Mark kind="?" label="机会" />}
-                {space.type === 'chest' && <Mark kind="箱" label="公益" />}
+                {space.type === 'chance' && <Mark kind="?" label={tx('机会', 'Chance')} />}
+                {space.type === 'chest' && <Mark kind={tx('箱', 'C')} label={tx('公益', 'Chest')} />}
                 {(space.type === 'railroad' || space.type === 'utility' || space.type === 'tax') && (
                   <>
-                    <span className="tname">{space.short}</span>
+                    <span className={label.length > 9 ? 'tname is-long' : 'tname'}>{label}</span>
                     {space.price ? <span className="tprice">${space.price}</span> : null}
                     {space.tax ? <span className="tprice">${space.tax}</span> : null}
                   </>
                 )}
                 {space.type === 'property' && (
                   <>
-                    <span className="tname">{space.short}</span>
+                    <span className={label.length > 9 ? 'tname is-long' : 'tname'}>{label}</span>
                     <span className="tprice">${space.price}</span>
                   </>
                 )}
@@ -117,7 +124,7 @@ export function Board({
                         piece.yours ? 'is-you' : '',
                         piece.inJail && piece.position === 10 ? 'is-jailed' : '',
                       ].filter(Boolean).join(' ')}
-                      style={{ ['--ring' as string]: ring(piece.characterId) }}
+                      style={{ ['--ring' as string]: characterById(piece.characterId)?.color || '#fff' }}
                     >
                       <Avatar id={piece.characterId} size={30} />
                     </span>
@@ -138,18 +145,6 @@ export function Board({
       </div>
     </div>
   )
-}
-
-function ring(id: string) {
-  const colors: Record<string, string> = {
-    shibagy: '#e2b657',
-    ada: '#6d5b8c',
-    erchai: '#6e8eb5',
-    orangie: '#ef8b3a',
-    tutu: '#d4566a',
-    ginger: '#3f8f62',
-  }
-  return colors[id] || '#fff'
 }
 
 function Mark({ kind, label }: { kind: string; label: string }) {

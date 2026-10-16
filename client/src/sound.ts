@@ -63,7 +63,14 @@ export const sfx = {
     tone(160, 0.08, 'square', 0.028, 0.28)
   },
   step() {
-    tone(280, 0.05, 'triangle', 0.045)
+    noise(0.045, 0.07, 1400)
+    tone(520, 0.035, 'square', 0.04)
+  },
+  taps(count = 3) {
+    for (let i = 0; i < count; i++) {
+      noise(0.04, 0.065, 1500, i * 0.11)
+      tone(480 + i * 40, 0.035, 'square', 0.038, i * 0.11)
+    }
   },
   land() {
     tone(150, 0.12, 'sine', 0.07)

@@ -1,4 +1,5 @@
 import { CARDS, CHANCE_IDS, CHEST_IDS } from '../../shared/cards.ts'
+import { translate } from '../../shared/phrases.ts'
 import { RAILROAD_IDS, SPACES, UTILITY_IDS, isDeed } from '../../shared/board.ts'
 import {
   buildIssue,
@@ -116,9 +117,9 @@ function nextId(state: GameState, fromId: string): string | null {
   return null
 }
 
-function log(state: GameState, text: string) {
+function log(state: GameState, text: string, en = text) {
   state.logSeq += 1
-  state.log.push({ id: state.logSeq, text, at: Date.now() })
+  state.log.push({ id: state.logSeq, text, en, at: Date.now() })
   if (state.log.length > 120) state.log.splice(0, state.log.length - 120)
 }
 
@@ -142,7 +143,7 @@ function maybeWin(state: GameState): boolean {
     state.stack = []
     state.auction = null
     state.trade = null
-    log(state, left[0] ? `${left[0].name} 赢了` : '这局结束了')
+    log(state, left[0] ? `${left[0].name} 赢了` : '这局结束了', left[0] ? `${left[0].name} wins` : 'The game is over')
     return true
   }
   return false
@@ -166,7 +167,15 @@ function sendToJail(state: GameState, player: GamePlayer, events: GameEvent[]) {
   state.extraRoll = false
   state.doublesStreak = 0
   events.push({ type: 'jail', playerId: player.id })
-  log(state, `${player.name} 进监狱了`)
+  log(state, `${player.name} 进监狱了`, `${player.name} went to jail`)
+}
+
+function reasonEn(reason: string) {
+  return translate('en', reason)
+}
+
+function placeEn(name: string) {
+  return SPACES.find((space) => space.name === name)?.en ?? name
 }
 
 function pay(state: GameState, fromId: string, amount: number, creditor: Creditor, reason: string) {
@@ -175,15 +184,23 @@ function pay(state: GameState, fromId: string, amount: number, creditor: Credito
   if (creditor.type === 'bank') {
     if (state.rules.freeParking && amount > 0) {
       state.pot += amount
-      log(state, `${from.name} 付了${reason} $${amount}，放进停车奖金（现在 $${state.pot}）`)
+      log(
+        state,
+        `${from.name} 付了${reason} $${amount}，放进停车奖金（现在 $${state.pot}）`,
+        `${from.name} paid $${amount} for ${reasonEn(reason)} into Free Parking (now $${state.pot})`,
+      )
     } else {
-      log(state, `${from.name} 付了${reason} $${amount}`)
+      log(state, `${from.name} 付了${reason} $${amount}`, `${from.name} paid $${amount} for ${reasonEn(reason)}`)
     }
     return
   }
   const to = must(state, creditor.id)
   to.money += amount
-  log(state, `${from.name} 给 ${to.name} 付了${reason} $${amount}`)
+  log(
+    state,
+    `${from.name} 给 ${to.name} 付了${reason} $${amount}`,
+    `${from.name} paid ${to.name} $${amount} for ${reasonEn(reason)}`,
+  )
 }
 
 function debt(playerId: string, amount: number, creditor: Creditor, reason: string): DebtStep {
@@ -260,7 +277,7 @@ function perform(state: GameState, step: Step, events: GameEvent[], rand: () => 
         path.push(player.position)
         if (step.collectGo && player.position === 0) {
           player.money += state.rules.salary
-          log(state, `${player.name} 经过起点，领了 $${state.rules.salary}`)
+          log(state, `${player.name} 经过起点，领了 $${state.rules.salary}`, `${player.name} passed GO and collected $${state.rules.salary}`)
         }
       }
       if (path.length) events.push({ type: 'move', playerId: player.id, path })
@@ -274,10 +291,10 @@ function perform(state: GameState, step: Step, events: GameEvent[], rand: () => 
         path.push(player.position)
         if (step.collectGo && player.position === 0) {
           player.money += state.rules.salary
-          log(state, `${player.name} 经过起点，领了 $${state.rules.salary}`)
+          log(state, `${player.name} 经过起点，领了 $${state.rules.salary}`, `${player.name} passed GO and collected $${state.rules.salary}`)
         }
       }
-      if (path.length) events.push({ type: 'move', playerId: player.id, path })
+      if (path.length) events.push({ type: 'move', playerId: player.id, path, jump: true })
       return false
     }
     case 'back': {
@@ -304,13 +321,14 @@ function perform(state: GameState, step: Step, events: GameEvent[], rand: () => 
         state.phase = 'ended'
         return true
       }
+      state.lastCard = null
       state.currentId = id
       state.doublesStreak = 0
       state.pendingExtra = false
       state.extraRoll = false
       state.cardChain = 0
       state.phase = 'pre-roll'
-      log(state, `轮到 ${must(state, id).name}`)
+      log(state, `轮到 ${must(state, id).name}`, `${must(state, id).name}'s turn`)
       return true
     }
     case 'free-from-jail':
@@ -318,7 +336,7 @@ function perform(state: GameState, step: Step, events: GameEvent[], rand: () => 
       player.jailTurns = 0
       state.phase = 'pre-roll'
       state.extraRoll = false
-      log(state, `${player.name} 出狱了，可以走了`)
+      log(state, `${player.name} 出狱了，可以走了`, `${player.name} is out of jail`)
       return true
     case 'release-jail':
       player.inJail = false
@@ -327,7 +345,7 @@ function perform(state: GameState, step: Step, events: GameEvent[], rand: () => 
     case 'collect': {
       const who = must(state, step.playerId)
       who.money += step.amount
-      log(state, `${who.name} 拿到 $${step.amount}（${step.reason}）`)
+      log(state, `${who.name} 拿到 $${step.amount}（${step.reason}）`, `${who.name} collected $${step.amount} (${reasonEn(step.reason)})`)
       return false
     }
     default:
@@ -341,19 +359,19 @@ function resolveSpace(state: GameState, events: GameEvent[], rand: () => number)
   assert(space, '走偏了')
   const mod = state.landingMod
   state.landingMod = null
-  log(state, `${player.name} 停在 ${space.name}`)
+  log(state, `${player.name} 停在 ${space.name}`, `${player.name} landed on ${space.en}`)
 
   if (space.type === 'go' || space.type === 'jail') {
-    if (space.type === 'jail') log(state, `${player.name} 只是路过`)
+    if (space.type === 'jail') log(state, `${player.name} 只是路过`, `${player.name} is just visiting`)
     return false
   }
   if (space.type === 'parking') {
     if (state.rules.freeParking && state.pot > 0) {
       player.money += state.pot
-      log(state, `${player.name} 把停车奖金 $${state.pot} 拿走了`)
+      log(state, `${player.name} 把停车奖金 $${state.pot} 拿走了`, `${player.name} collected $${state.pot} from Free Parking`)
       state.pot = 0
     } else {
-      log(state, `${player.name} 在停车格歇了歇`)
+      log(state, `${player.name} 在停车格歇了歇`, `${player.name} rested on Free Parking`)
     }
     return false
   }
@@ -376,15 +394,15 @@ function resolveSpace(state: GameState, events: GameEvent[], rand: () => number)
   if (!plot.ownerId) {
     state.buySpaceId = space.id
     state.phase = 'buy'
-    log(state, `${space.name} 还没人买`)
+    log(state, `${space.name} 还没人买`, `${space.en} is unowned`)
     return true
   }
   if (plot.ownerId === player.id) {
-    log(state, `${player.name} 走到了自己的地`)
+    log(state, `${player.name} 走到了自己的地`, `${player.name} landed on their own property`)
     return false
   }
   if (plot.mortgaged) {
-    log(state, `${space.name} 押着，这趟不收租`)
+    log(state, `${space.name} 押着，这趟不收租`, `${space.en} is mortgaged, so no rent`)
     return false
   }
 
@@ -394,7 +412,11 @@ function resolveSpace(state: GameState, events: GameEvent[], rand: () => number)
     state.lastDice = dice
     events.push({ type: 'dice', playerId: player.id, dice })
     rent = (dice[0] + dice[1]) * 10
-    log(state, `两家公用都在手里，按骰子的十倍收租。掷出 ${dice[0]} 和 ${dice[1]}`)
+    log(
+      state,
+      `两家公用都在手里，按骰子的十倍收租。掷出 ${dice[0]} 和 ${dice[1]}`,
+      `Both utilities are owned. Rent is ten times the dice: ${dice[0]} and ${dice[1]}`,
+    )
   } else {
     const diceSum = state.lastDice ? state.lastDice[0] + state.lastDice[1] : 7
     rent = computeRent(state, space.id, diceSum)
@@ -408,21 +430,21 @@ function resolveSpace(state: GameState, events: GameEvent[], rand: () => number)
 
 function drawCard(state: GameState, deck: 'chance' | 'chest', events: GameEvent[], rand: () => number): boolean {
   if (state.cardChain >= 8) {
-    log(state, '牌抽太勤，这张先跳过')
+    log(state, '牌抽太勤，这张先跳过', 'Too many cards in a row. This one is skipped')
     return false
   }
   state.cardChain += 1
   const id = drawFrom(state, deck, rand)
   if (!id) {
-    log(state, deck === 'chance' ? '机会牌摸完了' : '公益牌摸完了')
+    log(state, deck === 'chance' ? '机会牌摸完了' : '公益牌摸完了', deck === 'chance' ? 'The Chance deck is empty' : 'The Community Chest deck is empty')
     return false
   }
   const card = CARDS[id]
   assert(card, '牌面丢失')
   const player = must(state, state.currentId)
-  state.lastCard = { id: card.id, deck: card.deck, text: card.text }
-  events.push({ type: 'card', playerId: player.id, deck: card.deck, text: card.text })
-  log(state, `${player.name} 抽到：${card.text}`)
+  state.lastCard = { id: card.id, deck: card.deck, text: card.text, en: card.en }
+  events.push({ type: 'card', playerId: player.id, deck: card.deck, text: card.text, en: card.en })
+  log(state, `${player.name} 抽到：${card.text}`, `${player.name} drew: ${card.en}`)
   if (card.effect.type === 'jail-card') {
     player.heldCards.push({ id: card.id, deck: card.deck })
     return false
@@ -450,14 +472,18 @@ function runStack(state: GameState, events: GameEvent[], rand: () => number) {
         continue
       }
       state.phase = 'debt'
-      log(state, `${who.name} 要付 $${step.amount}（${step.reason}）。先凑钱，或者破产`)
+      log(
+        state,
+        `${who.name} 要付 $${step.amount}（${step.reason}）。先凑钱，或者破产`,
+        `${who.name} owes $${step.amount} (${reasonEn(step.reason)}). Raise cash, or go bankrupt`,
+      )
       return
     }
     state.stack.shift()
     if (perform(state, step, events, rand)) return
   }
   if (guard >= 48) {
-    log(state, '这一步太长，先停一下')
+    log(state, '这一步太长，先停一下', 'That step ran too long and stopped')
     state.stack = []
   }
   enterIdle(state)
@@ -489,15 +515,15 @@ function finishAuction(state: GameState) {
     const winner = must(state, auction.highBidderId)
     const name = SPACES[auction.spaceId]?.name ?? '这块地'
     if (winner.bankrupt || winner.money < auction.highBid) {
-      log(state, `${winner.name} 付不起 $${auction.highBid}，${name} 流拍了`)
+      log(state, `${winner.name} 付不起 $${auction.highBid}，${name} 流拍了`, `${winner.name} can't pay $${auction.highBid}. ${placeEn(name)} goes unsold`)
     } else {
       winner.money -= auction.highBid
       const plot = state.plots[auction.spaceId]
       if (plot) plot.ownerId = winner.id
-      log(state, `${winner.name} 以 $${auction.highBid} 拍下${name}`)
+      log(state, `${winner.name} 以 $${auction.highBid} 拍下${name}`, `${winner.name} bought ${placeEn(name)} at auction for $${auction.highBid}`)
     }
   } else if (auction) {
-    log(state, `${SPACES[auction.spaceId]?.name ?? '这块地'} 流拍了`)
+    log(state, `${SPACES[auction.spaceId]?.name ?? '这块地'} 流拍了`, `${SPACES[auction.spaceId]?.en ?? 'This lot'} went unsold`)
   }
   if (state.phase !== 'ended') state.phase = 'resolving'
 }
@@ -516,7 +542,7 @@ function setNextBidder(state: GameState): boolean {
     const bidder = must(state, id)
     if (bidder.money < auction.highBid + 1) {
       auction.passed.push(id)
-      log(state, `${bidder.name} 钱不够，喊不了这个价`)
+      log(state, `${bidder.name} 钱不够，喊不了这个价`, `${bidder.name} can't afford the current bid`)
       continue
     }
     auction.turnId = id
@@ -536,7 +562,7 @@ function startAuction(state: GameState) {
     passed: [],
   }
   state.phase = 'auction'
-  log(state, `${SPACES[spaceId]?.name ?? '这块地'} 开始拍卖`)
+  log(state, `${SPACES[spaceId]?.name ?? '这块地'} 开始拍卖`, `Auction started for ${SPACES[spaceId]?.en ?? 'this lot'}`)
   if (!setNextBidder(state)) finishAuction(state)
 }
 
@@ -580,11 +606,11 @@ function liquidate(state: GameState, debtorId: string, creditor: Creditor) {
     if (due > 0 && creditorPlayer.money >= due) {
       creditorPlayer.money -= due
       if (state.rules.freeParking) state.pot += due
-      log(state, `${creditorPlayer.name} 付了抵押利息 $${due}`)
+      log(state, `${creditorPlayer.name} 付了抵押利息 $${due}`, `${creditorPlayer.name} paid $${due} mortgage interest`)
     } else if (due > 0) {
-      log(state, `${creditorPlayer.name} 钱不够付利息，这些地先押着`)
+      log(state, `${creditorPlayer.name} 钱不够付利息，这些地先押着`, `${creditorPlayer.name} can't pay the interest, so the lots stay mortgaged`)
     }
-    log(state, `${debtor.name} 破产了，剩下的东西归 ${creditorPlayer.name}`)
+    log(state, `${debtor.name} 破产了，剩下的东西归 ${creditorPlayer.name}`, `${debtor.name} is bankrupt. The rest goes to ${creditorPlayer.name}`)
   } else {
     debtor.money = 0
     for (let i = 0; i < 40; i++) {
@@ -598,7 +624,7 @@ function liquidate(state: GameState, debtorId: string, creditor: Creditor) {
       discard.push(card.id)
     }
     debtor.heldCards = []
-    log(state, `${debtor.name} 破产了，家当归银行`)
+    log(state, `${debtor.name} 破产了，家当归银行`, `${debtor.name} is bankrupt. Everything returns to the bank`)
   }
   debtor.bankrupt = true
   debtor.inJail = false
@@ -704,7 +730,7 @@ function acceptTrade(state: GameState) {
   from.heldCards.push(...wantCards)
   to.heldCards.push(...offerCards)
   state.trade = null
-  log(state, `${from.name} 和 ${to.name} 换完了`)
+  log(state, `${from.name} 和 ${to.name} 换完了`, `${from.name} and ${to.name} finished the trade`)
 }
 
 function moneyOk(phase: Phase, kind: 'build' | 'sell' | 'mortgage' | 'unmortgage', playerId: string, state: GameState) {
@@ -739,7 +765,7 @@ function actionRoll(state: GameState, playerId: string, events: GameEvent[], ran
   state.lastDice = dice
   events.push({ type: 'dice', playerId, dice })
   const doubles = dice[0] === dice[1]
-  log(state, `${player.name} 掷出 ${dice[0]} 和 ${dice[1]}`)
+  log(state, `${player.name} 掷出 ${dice[0]} 和 ${dice[1]}`, `${player.name} rolled ${dice[0]} and ${dice[1]}`)
 
   if (fromJail) {
     const forced = player.jailTurns >= 2
@@ -749,15 +775,15 @@ function actionRoll(state: GameState, playerId: string, events: GameEvent[], ran
       const steps: Step[] = []
       if (!doubles) steps.push(debt(player.id, 50, BANK, '第三次出狱'))
       steps.push({ type: 'release-jail' }, { type: 'forward', steps: dice[0] + dice[1], collectGo: true }, { type: 'resolve-space' })
-      if (doubles) log(state, `${player.name} 掷出双骰，出狱了`)
-      else log(state, `${player.name} 第三次还是没出双骰，付 $50 再走`)
+      if (doubles) log(state, `${player.name} 掷出双骰，出狱了`, `${player.name} rolled doubles and left jail`)
+      else log(state, `${player.name} 第三次还是没出双骰，付 $50 再走`, `${player.name} failed three times, paid $50, and moved`)
       state.phase = 'resolving'
       state.stack.unshift(...steps)
       runStack(state, events, rand)
       return
     }
     player.jailTurns += 1
-    log(state, `${player.name} 没出双骰，还得待着（第 ${player.jailTurns} 次）`)
+    log(state, `${player.name} 没出双骰，还得待着（第 ${player.jailTurns} 次）`, `${player.name} didn't roll doubles and stays in jail (try ${player.jailTurns})`)
     state.phase = 'resolving'
     state.stack.unshift({ type: 'next-turn' })
     runStack(state, events, rand)
@@ -767,7 +793,7 @@ function actionRoll(state: GameState, playerId: string, events: GameEvent[], ran
   if (doubles) {
     state.doublesStreak += 1
     if (state.doublesStreak >= 3) {
-      log(state, `${player.name} 连续三次双骰，进监狱`)
+      log(state, `${player.name} 连续三次双骰，进监狱`, `${player.name} rolled doubles three times and went to jail`)
       sendToJail(state, player, events)
       state.phase = 'resolving'
       state.stack.unshift({ type: 'next-turn' })
@@ -847,7 +873,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       player.inJail = false
       player.jailTurns = 0
       state.phase = 'pre-roll'
-      log(state, `${player.name} 用免罪卡出狱了`)
+      log(state, `${player.name} 用免罪卡出狱了`, `${player.name} used a Get Out of Jail Free card`)
       return
     }
     case 'buy': {
@@ -863,7 +889,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       plot.ownerId = player.id
       plot.houses = 0
       plot.mortgaged = false
-      log(state, `${player.name} 以 $${space.price} 买下${space.name}`)
+      log(state, `${player.name} 以 $${space.price} 买下${space.name}`, `${player.name} bought ${space.en} for $${space.price}`)
       state.buySpaceId = null
       state.phase = 'resolving'
       runStack(state, events, rand)
@@ -874,7 +900,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       assert(state.phase === 'buy', '现在不用决定买不买')
       const name = SPACES[state.buySpaceId ?? -1]?.name ?? '这块地'
       if (state.rules.auction) {
-        log(state, `${must(state, playerId).name} 不买 ${name}，拿去拍卖`)
+        log(state, `${must(state, playerId).name} 不买 ${name}，拿去拍卖`, `${must(state, playerId).name} passed on ${placeEn(name)}. It goes to auction`)
         startAuction(state)
         if (!state.auction) {
           state.phase = 'resolving'
@@ -882,7 +908,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
         }
         return
       }
-      log(state, `${must(state, playerId).name} 放过了 ${name}`)
+      log(state, `${must(state, playerId).name} 放过了 ${name}`, `${must(state, playerId).name} passed on ${placeEn(name)}`)
       state.buySpaceId = null
       state.phase = 'resolving'
       runStack(state, events, rand)
@@ -900,7 +926,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       auction.highBidderId = playerId
       auction.passed = []
       auction.turnId = playerId
-      log(state, `${bidder.name} 出价 $${amount}`)
+      log(state, `${bidder.name} 出价 $${amount}`, `${bidder.name} bid $${amount}`)
       if (!setNextBidder(state)) {
         finishAuction(state)
         runStack(state, events, rand)
@@ -914,7 +940,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       assert(actor, '还没轮到你放弃')
       if (auction.turnId !== playerId) assert(!must(state, auction.turnId).connected, '对方还在线')
       auction.passed.push(auction.turnId)
-      log(state, `${must(state, auction.turnId).name} 不喊了`)
+      log(state, `${must(state, auction.turnId).name} 不喊了`, `${must(state, auction.turnId).name} passed`)
       if (!setNextBidder(state)) {
         finishAuction(state)
         runStack(state, events, rand)
@@ -942,11 +968,11 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
         state.hotels -= 1
         state.houses += 4
         plot.houses = 5
-        log(state, `${who.name} 在${space.name} 盖了旅馆`)
+        log(state, `${who.name} 在${space.name} 盖了旅馆`, `${who.name} built a hotel on ${space.en}`)
       } else {
         state.houses -= 1
         plot.houses += 1
-        log(state, `${who.name} 在${space.name} 盖了一栋房子`)
+        log(state, `${who.name} 在${space.name} 盖了一栋房子`, `${who.name} built a house on ${space.en}`)
       }
       return
     }
@@ -967,7 +993,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       }
       const refund = Math.floor((space.houseCost || 0) / 2)
       who.money += refund
-      log(state, `${who.name} 卖掉 ${space.name} 的一栋，拿回 $${refund}`)
+      log(state, `${who.name} 卖掉 ${space.name} 的一栋，拿回 $${refund}`, `${who.name} sold a building on ${space.en} for $${refund}`)
       return
     }
     case 'mortgage': {
@@ -978,7 +1004,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       const plot = state.plots[action.spaceId]!
       plot.mortgaged = true
       must(state, playerId).money += space.mortgage || 0
-      log(state, `${must(state, playerId).name} 把 ${space.name} 押了，拿到 $${space.mortgage}`)
+      log(state, `${must(state, playerId).name} 把 ${space.name} 押了，拿到 $${space.mortgage}`, `${must(state, playerId).name} mortgaged ${space.en} for $${space.mortgage}`)
       return
     }
     case 'unmortgage': {
@@ -995,7 +1021,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       who.money -= cost
       plot.mortgaged = false
       if (state.rules.freeParking) state.pot += cost - (space.mortgage || 0)
-      log(state, `${must(state, playerId).name} 赎回 ${space.name}，付了 $${cost}`)
+      log(state, `${must(state, playerId).name} 赎回 ${space.name}，付了 $${cost}`, `${must(state, playerId).name} unmortgaged ${space.en} for $${cost}`)
       return
     }
     case 'pay-debt': {
@@ -1031,18 +1057,18 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
         offer: pack(action.offer),
         want: pack(action.want),
       }
-      log(state, `${must(state, playerId).name} 想跟 ${to.name} 换`)
+      log(state, `${must(state, playerId).name} 想跟 ${to.name} 换`, `${must(state, playerId).name} offered ${to.name} a trade`)
       return
     }
     case 'cancel-trade':
       assert(state.trade?.from === playerId, '没有你提的交换')
       state.trade = null
-      log(state, `${must(state, playerId).name} 把交换收回了`)
+      log(state, `${must(state, playerId).name} 把交换收回了`, `${must(state, playerId).name} cancelled the trade`)
       return
     case 'respond-trade':
       assert(state.trade?.to === playerId, '没有给你的交换')
       if (!action.accept) {
-        log(state, `${must(state, playerId).name} 拒绝了`)
+        log(state, `${must(state, playerId).name} 拒绝了`, `${must(state, playerId).name} declined`)
         state.trade = null
         return
       }
@@ -1072,7 +1098,7 @@ function dispatch(state: GameState, playerId: string, action: Action, events: Ga
       state.trade = null
       state.pendingExtra = false
       if (skipped.inJail && state.phase === 'pre-roll') skipped.jailTurns = Math.min(2, skipped.jailTurns + 1)
-      log(state, `${skipped.name} 掉线了，这回合先跳过`)
+      log(state, `${skipped.name} 掉线了，这回合先跳过`, `${skipped.name} is offline. Skipping this turn`)
       state.phase = 'resolving'
       state.stack = [{ type: 'next-turn' }]
       runStack(state, events, rand)
@@ -1132,7 +1158,8 @@ export function createGame(seats: SeatInput[], rules: Rules, rand: () => number 
     buySpaceId: null,
   }
   const names = state.players.map((p) => p.name).join('、')
-  log(state, `开局了。顺序是 ${names}，${state.players[0]?.name} 先走。`)
+  const namesEn = state.players.map((p) => p.name).join(', ')
+  log(state, `开局了。顺序是 ${names}，${state.players[0]?.name} 先走。`, `The game starts. Order: ${namesEn}. ${state.players[0]?.name} goes first.`)
   return state
 }
 
