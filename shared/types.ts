@@ -138,6 +138,7 @@ export type Step =
   | { type: 'collect'; playerId: string; amount: number; reason: string }
 
 export interface Auction {
+  sellerId?: string
   spaceId: number
   highBid: number
   highBidderId: string | null
@@ -206,7 +207,17 @@ export interface GameState {
   buySpaceId: number | null
 }
 
+export interface MoneyChange {
+  type: 'money'
+  playerId: string
+  amount: number
+  reason: string
+  enReason: string
+}
+
 export type GameEvent =
+  | MoneyChange
+  | { type: 'trade-completed'; trade: Trade }
   | { type: 'dice'; playerId: string; dice: [number, number] }
   | { type: 'move'; playerId: string; path: number[]; jump?: boolean }
   | { type: 'card'; playerId: string; deck: Deck; text: string; en: string }
@@ -230,6 +241,8 @@ export type Action =
   | { type: 'jail-roll' }
   | { type: 'pay-debt' }
   | { type: 'bankrupt' }
+  | { type: 'surrender' }
+  | { type: 'auction-property'; spaceId: number }
   | { type: 'trade'; to: string; offer: TradePack; want: TradePack }
   | { type: 'respond-trade'; accept: boolean }
   | { type: 'cancel-trade' }

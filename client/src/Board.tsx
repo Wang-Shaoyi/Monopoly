@@ -114,9 +114,9 @@ export function Board({
                     <span className="tprice">${space.price}</span>
                   </>
                 )}
-                {plot && plot.houses > 0 && <Buildings count={plot.houses} />}
                 {plot?.mortgaged && <span className="stamp">{tx('押', 'M')}</span>}
               </span>
+              {plot && plot.houses > 0 && <span className="tile-buildings" role="img" aria-label={plot.houses >= 5 ? tx('一座酒店', '1 hotel') : tx(`${plot.houses} 栋房屋`, `${plot.houses} houses`)}><Buildings count={plot.houses} /></span>}
               {here.length > 0 && (
                 <span className="pieces">
                   {here.map((piece) => (

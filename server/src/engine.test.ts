@@ -8,7 +8,7 @@ import assert from 'node:assert/strict'
 import { CARD_LIST, cardForMap } from '../../shared/cards.ts'
 import { SPACES, spacesForMap, spaceLabel, propertyRegion } from '../../shared/board.ts'
 import { DEFAULT_RULES, type Action, type GameState, type CharacterId } from '../../shared/types.ts'
-import { apply, arrangeSeats, createGame } from './engine.ts'
+import { apply, arrangeSeats, createGame, ejectPlayer } from './engine.ts'
 
 const seats = [
   { id: 'a', name: 'Ada', characterId: 'ada' as const, connected: true },
@@ -579,6 +579,210 @@ test('Tutu 等待跳跃时离线，其他在线玩家可跳过技能继续结算
   state = ok(state, '1', { type: 'skip-offline' })
   assert.equal(state.phase, 'post-roll')
   assert.equal(state.players[0]!.hopUses, 2)
+})
+
+
+test('收支反馈逐笔记录：经过起点又交税，即使净变化为零也不合并', () => {
+  const state = skillGame('ada', 'ginger')
+  state.players[0]!.position = 39
+  const result = apply(state, '0', { type: 'debug-roll', dice: [2, 3] }, () => 0.25)
+  assert.equal(result.ok, true)
+  assert.equal(result.state.players[0]!.money, 1500)
+  const changes = result.events.filter((e) => e.type === 'money')
+  assert.deepEqual(changes.map((e) => [e.playerId, e.amount]), [['0', 200], ['0', -200]])
+  assert.ok(changes.every((e) => e.reason && e.enReason))
+  assert.ok(result.events.findIndex((e) => e.type === 'move') < result.events.findIndex((e) => e.type === 'money'))
+})
+
+test('Shibagy 收费反馈同时包含付款和收款双方', () => {
+  const state = skillGame('ada', 'shibagy')
+  state.players[1]!.position = 3
+  const result = apply(state, '0', { type: 'debug-roll', dice: [1, 2] }, () => 0.25)
+  const changes = result.events.filter((e) => e.type === 'money')
+  assert.deepEqual(changes.map((e) => [e.playerId, e.amount]), [['0', -20], ['1', 20]])
+})
+
+test('房产买卖、建造和抵押赎回均产生实际金额反馈', () => {
+  let state = skillGame('ginger', 'ada')
+  state.players[0]!.position = 36
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  const bought = apply(state, '0', { type: 'buy' })
+  assert.deepEqual(bought.events.filter((e) => e.type === 'money').map((e) => e.amount), [-350])
+  state = skillGame('ada', 'ginger')
+  state = ok(state, '0', { type: 'debug-own', spaceIds: [1, 3] })
+  for (const [action, amount] of [[{ type: 'build', spaceId: 1 }, -50], [{ type: 'sell', spaceId: 1 }, 25], [{ type: 'mortgage', spaceId: 1 }, 30], [{ type: 'unmortgage', spaceId: 1 }, -33]] as const) {
+    const result = apply(state, '0', action)
+    assert.equal(result.ok, true)
+    assert.deepEqual(result.events.filter((e) => e.type === 'money').map((e) => e.amount), [amount])
+    state = result.state
+  }
+})
+
+test('交易双向现金单独反馈，不只显示净额', () => {
+  let state = skillGame('ada', 'ginger')
+  state.phase = 'post-roll'
+  state = ok(state, '0', { type: 'trade', to: '1', offer: { money: 100, spaceIds: [], cardIds: [] }, want: { money: 50, spaceIds: [], cardIds: [] } })
+  const result = apply(state, '1', { type: 'respond-trade', accept: true })
+  assert.equal(result.ok, true)
+  assert.deepEqual(result.events.filter((e) => e.type === 'money').map((e) => [e.playerId, e.amount]), [['0', -100], ['1', 100], ['1', -50], ['0', 50]])
+  assert.deepEqual(result.state.players.map((p) => p.money), [1450, 1550])
+})
+
+test('破产和离开清算也提供收支反馈，失败操作不提供反馈', () => {
+  let state = skillGame('ada', 'shibagy', 'ginger')
+  state.players[0]!.money = 10
+  state.players[1]!.position = 3
+  state = ok(state, '0', { type: 'debug-roll', dice: [1, 2] })
+  const result = apply(state, '0', { type: 'bankrupt' })
+  assert.deepEqual(result.events.filter((e) => e.type === 'money').map((e) => [e.playerId, e.amount]), [['0', -10], ['1', 10]])
+  state = skillGame('ada', 'ginger')
+  const left = ejectPlayer(state, '0')
+  assert.deepEqual(left.events.filter((e) => e.type === 'money').map((e) => e.amount), [-1500])
+  const failed = apply(state, '0', { type: 'buy' })
+  assert.equal(failed.ok, false)
+  assert.equal(failed.events.length, 0)
+})
+
+test('交易成交向非交易玩家公开完整明细，纯房产和卡牌交易也公示', () => {
+  let state = skillGame('orangie', 'ada', 'ginger')
+  state.rules.mapId = 'usa'
+  state.phase = 'post-roll'
+  state.plots[1]!.ownerId = '0'
+  const offer = { money: 0, spaceIds: [1], cardIds: ['c8'] }
+  state = ok(state, '0', { type: 'trade', to: '1', offer, want: { money: 0, spaceIds: [], cardIds: [] } })
+  const result = apply(state, '1', { type: 'respond-trade', accept: true })
+  assert.equal(result.ok, true)
+  const event = result.events.find((e) => e.type === 'trade-completed')
+  assert.ok(event && event.type === 'trade-completed')
+  assert.deepEqual(event.trade.offer, offer)
+  assert.equal(result.events.filter((e) => e.type === 'money').length, 0)
+  const { room } = createRoom('Host', 'public-trade-host', 'usa')
+  const observer = joinRoom(room.code, 'Observer', 'public-trade-observer')
+  if ('error' in observer) throw Error(String(observer.error))
+  room.game = result.state
+  const publicSnap = snapshot(room, observer.person.id, result.events)
+  assert.deepEqual(publicSnap.events, result.events)
+  assert.ok(publicSnap.game!.log.some((line) => line.en?.includes('Houston') && line.en.includes('Get Out of Jail Free')))
+  assert.ok(publicSnap.game!.log.some((line) => line.text.includes('休斯敦') && line.text.includes('1 张出狱卡')))
+  assert.equal(publicSnap.game!.trade, null)
+})
+
+test('拒绝、取消和失败的交易不会发出成交公示', () => {
+  let state = skillGame('ada', 'ginger', 'orangie')
+  state.phase = 'post-roll'
+  state = ok(state, '0', { type: 'trade', to: '1', offer: { money: 100, spaceIds: [], cardIds: [] }, want: { money: 0, spaceIds: [], cardIds: [] } })
+  for (const [id, action] of [['1', { type: 'respond-trade', accept: false }], ['0', { type: 'cancel-trade' }]] as const) {
+    const result = apply(state, id, action)
+    assert.equal(result.ok, true)
+    assert.ok(!result.events.some((event) => event.type === 'trade-completed'))
+  }
+  state.players[0]!.money = 0
+  const failed = apply(state, '1', { type: 'respond-trade', accept: true })
+  assert.equal(failed.ok, false)
+  assert.deepEqual(failed.events, [])
+})
+
+function debtAuctionGame() {
+  const state = skillGame('ada', 'ginger', 'orangie')
+  state.players[0]!.money = 0
+  state.phase = 'debt'
+  state.stack = [{ type: 'debt', playerId: '0', amount: 200, creditor: { type: 'player', id: '1' }, reason: '租金' }]
+  state.plots[1]!.ownerId = '0'
+  state.plots[3]!.ownerId = '0'
+  return state
+}
+
+test('欠款玩家可拍卖筹款，成交后由本人决定还款而非自动破产', () => {
+  let state = debtAuctionGame()
+  state = ok(state, '0', { type: 'auction-property', spaceId: 1 })
+  assert.equal(state.auction?.turnId, '1')
+  state = ok(state, '1', { type: 'bid', amount: 300 })
+  state = ok(state, '2', { type: 'pass' })
+  assert.equal(state.phase, 'debt')
+  assert.equal(state.players[0]!.money, 300)
+  assert.equal(state.players[1]!.money, 1200)
+  assert.equal(state.plots[1]!.ownerId, '1')
+  assert.equal(state.players[0]!.bankrupt, false)
+  state = ok(state, '0', { type: 'pay-debt' })
+  assert.equal(state.players[0]!.money, 100)
+  assert.notEqual(state.phase, 'debt')
+})
+
+test('流拍保留原业主，只有欠款本人可发起且须先卖建筑', () => {
+  let state = debtAuctionGame()
+  assert.match(fail(state, '1', { type: 'auction-property', spaceId: 1 }) || '', /欠款玩家/)
+  assert.match(fail(state, '0', { type: 'auction-property', spaceId: 5 }) || '', /自己的房产/)
+  state.plots[3]!.houses = 1
+  assert.match(fail(state, '0', { type: 'auction-property', spaceId: 1 }) || '', /建筑/)
+  state.plots[3]!.houses = 0
+  state = ok(state, '0', { type: 'auction-property', spaceId: 1 })
+  state = ok(state, '1', { type: 'pass' })
+  state = ok(state, '2', { type: 'pass' })
+  assert.equal(state.phase, 'debt')
+  assert.equal(state.plots[1]!.ownerId, '0')
+  assert.equal(state.players[0]!.money, 0)
+})
+
+test('已抵押房产拍卖保留抵押，买家支付利息，卖家收足成交价', () => {
+  let state = debtAuctionGame()
+  state.plots[1]!.mortgaged = true
+  state = ok(state, '0', { type: 'auction-property', spaceId: 1 })
+  state.players[1]!.money = 300
+  assert.match(fail(state, '1', { type: 'bid', amount: 300 }) || '', /抵押利息/)
+  state = ok(state, '1', { type: 'bid', amount: 100 })
+  state = ok(state, '2', { type: 'pass' })
+  assert.equal(state.players[0]!.money, 100)
+  assert.equal(state.players[1]!.money, 197)
+  assert.equal(state.plots[1]!.mortgaged, true)
+})
+
+test('破产后未出售地产留白，已售地产保留买家，出狱卡归还牌堆', () => {
+  let state = debtAuctionGame()
+  state.players[0]!.heldCards = [{ id: 'c8', deck: 'chance' }]
+  state.plots[3]!.mortgaged = true
+  state = ok(state, '0', { type: 'auction-property', spaceId: 1 })
+  state = ok(state, '1', { type: 'bid', amount: 50 })
+  state = ok(state, '2', { type: 'pass' })
+  state = ok(state, '0', { type: 'bankrupt' })
+  assert.equal(state.players[0]!.bankrupt, true)
+  assert.equal(state.plots[1]!.ownerId, '1')
+  assert.equal(state.plots[3]!.ownerId, null)
+  assert.equal(state.plots[3]!.mortgaged, false)
+  assert.equal(state.players[1]!.heldCards.some((card) => card.id === 'c8'), false)
+  assert.ok(state.chanceDiscard.includes('c8'))
+})
+
+test('其他玩家不能通过跳过离线操作强制欠款人破产', () => {
+  const state = debtAuctionGame()
+  state.players[0]!.connected = false
+  assert.match(fail(state, '1', { type: 'skip-offline' }) || '', /自行决定/)
+  assert.equal(state.players[0]!.bankrupt, false)
+})
+
+test('认输无需欠款或轮到自己，只退出自己控制的角色', () => {
+  const state = skillGame('ada', 'ginger', 'orangie', 'tutu')
+  state.players[2]!.controllerId = state.players[1]!.controllerId
+  state.plots[1]!.ownerId = '1'
+  state.plots[3]!.ownerId = '2'
+  const result = apply(state, '1', { type: 'surrender' })
+  assert.equal(result.ok, true)
+  assert.deepEqual(result.state.players.map((p) => p.bankrupt), [false, true, true, false])
+  assert.equal(result.state.currentId, '0')
+  assert.equal(result.state.phase, 'pre-roll')
+  assert.equal(result.state.plots[1]!.ownerId, null)
+  assert.equal(result.state.plots[3]!.ownerId, null)
+  assert.ok(result.state.log.some((line) => line.en?.includes('conceded')))
+})
+
+test('认输清理当前欠款并正常产生胜者，不能在结束后再次认输', () => {
+  let state = debtAuctionGame()
+  state.players[2]!.controllerId = state.players[0]!.controllerId
+  state = ok(state, '0', { type: 'surrender' })
+  assert.equal(state.phase, 'ended')
+  assert.equal(state.winnerId, '1')
+  assert.equal(state.stack.length, 0)
+  assert.equal(state.plots[1]!.ownerId, null)
+  assert.match(fail(state, '1', { type: 'surrender' }) || '', /结束/)
 })
 
 console.log(`\n${passed} tests passed`)

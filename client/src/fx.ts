@@ -27,6 +27,7 @@ export function useFx(snap: Snapshot | null) {
   const [cardDeck, setCardDeck] = useState<Deck | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
   const [animating, setAnimating] = useState(false)
+  const [arrival, setArrival] = useState<{ spaceId: number } | null>(null)
   const runRef = useRef(0)
   const activeRef = useRef(false)
   const playingTurnRef = useRef<string | null>(null)
@@ -62,6 +63,7 @@ export function useFx(snap: Snapshot | null) {
       runRef.current += 1
       activeRef.current = false
       setAnimating(false)
+      setArrival(null)
       setRolling(false)
       setCard(null)
       setCardFace(null)
@@ -113,6 +115,7 @@ export function useFx(snap: Snapshot | null) {
             if (runRef.current !== my) return
             sfx.taps(3)
             setTokens((prev) => ({ ...prev, [event.playerId]: dest! }))
+            if (dest !== undefined) setArrival({ spaceId: dest })
             if (passed) {
               sfx.coin()
               setNotice('salary')
@@ -128,6 +131,7 @@ export function useFx(snap: Snapshot | null) {
               const last = i === path.length - 1
               if (pos !== 0) setNotice(null)
               setTokens((prev) => ({ ...prev, [event.playerId]: pos }))
+              if (last && pos !== undefined) setArrival({ spaceId: pos })
               if (pos === 0) {
                 sfx.coin()
                 setNotice('salary')
@@ -144,6 +148,7 @@ export function useFx(snap: Snapshot | null) {
         } else if (event.type === 'jail') {
           setNotice('jail')
           setTokens((prev) => ({ ...prev, [event.playerId]: 10 }))
+          setArrival({ spaceId: 10 })
           sfx.jail()
           await pace(JAIL_MS)
           if (runRef.current !== my) return
@@ -177,5 +182,5 @@ export function useFx(snap: Snapshot | null) {
     activeRef.current = false
   }, [])
 
-  return { tokens, dice, rolling, card, cardFace, cardDeck, notice, animating }
+  return { tokens, dice, rolling, card, cardFace, cardDeck, notice, animating, arrival }
 }

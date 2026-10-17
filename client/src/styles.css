@@ -195,14 +195,20 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
 .tile-icon + .tile-body { position: relative; }
 .pieces { z-index: 3; }
 .corner-go strong { color: #9c3b32; }
-.houses, .hotel { display: flex; gap: 1px; }
+.tile-buildings { position: absolute; z-index: 4; pointer-events: none; padding: 2px; border-radius: 3px; background: var(--cream); box-shadow: 0 1px 3px #0004; }
+.tile.bottom .tile-buildings { top: -3px; left: 50%; transform: translate(-50%, -50%); }
+.tile.top .tile-buildings { bottom: -3px; left: 50%; transform: translate(-50%, 50%); }
+.tile.left .tile-buildings { right: -3px; top: 50%; transform: translate(50%, -50%); }
+.tile.right .tile-buildings { left: -3px; top: 50%; transform: translate(-50%, -50%); }
+.houses, .hotel { display: flex; gap: 2px; }
+.tile.left .houses, .tile.right .houses { flex-direction: column; }
 .houses i, .hotel {
-  width: 7px;
-  height: 5px;
+  width: 8px;
+  height: 7px;
   background: #2f6b45;
   border-radius: 1px;
 }
-.hotel { width: 12px; background: #8d2f2f; }
+.hotel { width: 14px; height: 10px; background: #8d2f2f; }
 .stamp {
   position: absolute;
   inset: auto 4px 4px auto;
@@ -733,3 +739,15 @@ input[type="checkbox"] {
 .skill-tooltip p { margin: 6px 0 0; }
 .character-slot:nth-child(3n) .skill-tooltip, .character-slot:last-child .skill-tooltip { left: auto; right: 0; }
 .character-slot:hover .skill-tooltip, .character-slot:focus-within .skill-tooltip { opacity: 1; visibility: visible; }
+
+.money-feedback { padding: 12px 14px; border-radius: 14px; background: var(--cream); color: var(--ink); text-align: left; }
+.money-feedback > header { font-size: 12px; letter-spacing: .06em; color: #6e6256; margin-bottom: 8px; }
+.money-change { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+.money-change + .money-change { border-top: 1px solid var(--line); }
+.money-change .avatar { width: 28px; height: 28px; flex: 0 0 28px; }
+.money-change-label { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.money-change-label strong { font-size: 14px; }
+.money-change-label small { font-size: 12px; color: #6e6256; line-height: 1.4; overflow-wrap: anywhere; }
+.money-change > b { font-size: 20px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.money-change .income { color: #39794c; }
+.money-change .expense { color: #b2483c; }

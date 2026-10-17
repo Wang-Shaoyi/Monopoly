@@ -27,7 +27,7 @@ const sockets = new Map<string, { code: string; playerId: string }>()
 const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 const PUBLIC = new Set<Action['type']>([
   'hop', 'skip-hop', 'roll', 'buy', 'decline', 'bid', 'pass', 'end-turn', 'build', 'sell', 'mortgage', 'unmortgage',
-  'jail-pay', 'jail-card', 'jail-roll', 'pay-debt', 'bankrupt', 'trade', 'respond-trade', 'cancel-trade', 'skip-offline',
+  'jail-pay', 'jail-card', 'jail-roll', 'pay-debt', 'bankrupt', 'surrender', 'auction-property', 'trade', 'respond-trade', 'cancel-trade', 'skip-offline',
 ])
 
 let file = ''
@@ -367,6 +367,7 @@ export function roomByCode(code: string) {
 function actorFor(game: GameState, humanId: string, action: Action) {
   const mine = game.players.filter((player) => player.controllerId === humanId && !player.bankrupt)
   const has = (id?: string | null) => Boolean(id && mine.some((player) => player.id === id))
+  if (action.type === 'surrender') return mine[0]?.id ?? null
   if (action.type === 'build' || action.type === 'sell' || action.type === 'mortgage' || action.type === 'unmortgage') {
     const owner = game.plots[action.spaceId]?.ownerId
     return has(owner) ? owner! : null
@@ -374,7 +375,7 @@ function actorFor(game: GameState, humanId: string, action: Action) {
   if (action.type === 'respond-trade') return has(game.trade?.to) ? game.trade!.to : null
   if (action.type === 'cancel-trade') return has(game.trade?.from) ? game.trade!.from : null
   if (action.type === 'bid' || action.type === 'pass') return has(game.auction?.turnId) ? game.auction!.turnId : null
-  if (action.type === 'pay-debt' || action.type === 'bankrupt') {
+  if (action.type === 'pay-debt' || action.type === 'bankrupt' || action.type === 'auction-property') {
     const step = game.stack[0]
     return step?.type === 'debt' && has(step.playerId) ? step.playerId : null
   }

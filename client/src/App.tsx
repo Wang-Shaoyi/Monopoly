@@ -7,6 +7,7 @@ import { Board, type Piece } from './Board'
 import { Avatar } from './avatars'
 import { TradeBox } from './TradeBox'
 import { useFx } from './fx'
+import { MoneyFeedback, useMoneyFeedback } from './MoneyFeedback'
 import { useNet } from './net'
 import { sfx, unlockAudio } from './sound'
 import { BoardMapProvider, useI18n } from './locale'
@@ -28,6 +29,7 @@ export function App() {
 function AppContent({ mapId, setPreviewMap }: { mapId: MapId; setPreviewMap: (mapId: MapId) => void }) {
   const net = useNet()
   const fx = useFx(net.snap)
+  const cash = useMoneyFeedback(net.snap, fx.animating)
   const [name, setName] = useState('')
   const [code, setCode] = useState(() => new URLSearchParams(location.search).get('room')?.toUpperCase() || '')
   const [gate, setGate] = useState('')
@@ -40,6 +42,7 @@ function AppContent({ mapId, setPreviewMap }: { mapId: MapId; setPreviewMap: (ma
   const [want, setWant] = useState<TradePack>(EMPTY)
   const [bid, setBid] = useState(10)
   const [confirmLeave, setConfirmLeave] = useState(false)
+  const [confirmSurrender, setConfirmSurrender] = useState(false)
   const phaseRef = useRef<GameState['phase'] | null>(null)
   const { tx, say, toggle } = useI18n()
 
@@ -47,7 +50,7 @@ function AppContent({ mapId, setPreviewMap }: { mapId: MapId; setPreviewMap: (ma
   const game = snap?.game ?? null
   const youId = snap?.youId ?? null
   const screen = !net.metaReady ? 'loading' : net.siteRequired && !net.sitePassword ? 'gate' : net.booting ? 'loading' : !snap ? 'home' : game ? 'game' : 'lobby'
-  const busy = net.pending || fx.animating
+  const busy = net.pending || fx.animating || cash.pending
   const controlled = game?.players.filter((p) => p.controllerId === youId) ?? []
   const currentPiece = game?.players.find((p) => p.id === game.currentId) ?? null
   const yourTurn = Boolean(currentPiece && currentPiece.controllerId === youId && !currentPiece.bankrupt && game && game.phase !== 'ended')
@@ -62,7 +65,16 @@ function AppContent({ mapId, setPreviewMap }: { mapId: MapId; setPreviewMap: (ma
 
   useEffect(() => {
     setConfirmLeave(false)
+    setConfirmSurrender(false)
   }, [snap?.code, game !== null])
+
+  useEffect(() => {
+    setSelected(game?.players.find((player) => player.id === game.currentId)?.position ?? null)
+  }, [snap?.code, game !== null])
+
+  useEffect(() => {
+    if (fx.arrival) setSelected(fx.arrival.spaceId)
+  }, [fx.arrival])
 
   useEffect(() => {
     setTradeOpen(false)
@@ -234,6 +246,7 @@ function AppContent({ mapId, setPreviewMap }: { mapId: MapId; setPreviewMap: (ma
                   cardFace={fx.cardFace}
                   cardDeck={fx.cardDeck}
                   notice={fx.notice}
+                  money={cash.current}
                   busy={busy}
                   error={net.error}
                   bid={bid}
@@ -268,6 +281,9 @@ function AppContent({ mapId, setPreviewMap }: { mapId: MapId; setPreviewMap: (ma
                   {tx('结束本局', 'End game')}
                 </button>
               )}
+              {game.phase !== 'ended' && controlled.some((player) => !player.bankrupt) && (
+                <button type="button" className="text-button danger" disabled={net.pending} onClick={() => setConfirmSurrender(true)}>{tx('认输', 'Concede')}</button>
+              )}
             </aside>
           )}
         </div>
@@ -284,6 +300,18 @@ function AppContent({ mapId, setPreviewMap }: { mapId: MapId; setPreviewMap: (ma
       )}
 
       {rulesOpen && <Rules onClose={() => setRulesOpen(false)} />}
+      {confirmSurrender && game && game.phase !== 'ended' && controlled.some((player) => !player.bankrupt) && (
+        <div className="modal" role="dialog" aria-modal="true" aria-labelledby="surrender-title">
+          <article className="booklet confirm">
+            <h2 id="surrender-title">{tx('确定认输吗？', 'Concede this game?')}</h2>
+            <p>{tx('你控制的所有角色将退出本局，剩余地产恢复无主状态。你可以留在房间观战。', 'All characters you control will leave this game. Their remaining properties become unowned. You can stay in the room to watch.')}</p>
+            <div className="row">
+              <button type="button" className="solid danger" disabled={net.pending} onClick={() => { setConfirmSurrender(false); act({ type: 'surrender' }) }}>{tx('确认认输', 'Concede')}</button>
+              <button type="button" onClick={() => setConfirmSurrender(false)}>{tx('继续游戏', 'Keep playing')}</button>
+            </div>
+          </article>
+        </div>
+      )}
       {confirmLeave && game && (
         <div className="modal" role="dialog">
           <article className="booklet confirm">
@@ -484,6 +512,7 @@ function Center(props: {
   cardFace: 'back' | 'open' | null
   cardDeck: 'chance' | 'chest' | null
   notice: string | null
+  money: ReturnType<typeof useMoneyFeedback>['current']
   busy: boolean
   error: string | null
   bid: number
@@ -513,13 +542,14 @@ function Center(props: {
           ? tx(`${game.players.find((p) => p.id === game.winnerId)?.name || '有人'} 赢了`, `${game.players.find((p) => p.id === game.winnerId)?.name || 'Someone'} wins`)
           : tx(`轮到 ${current?.name || ''}`, `${current?.name || ''}'s turn`)}</span>
       </p>
-      {props.cardFace === 'back' && (
+      {props.money && <MoneyFeedback batch={props.money} game={game} />}
+      {!props.money && props.cardFace === 'back' && (
         <div className={`drawn is-back ${props.cardDeck || 'chance'}`} aria-hidden="true">
           <span>{props.cardDeck === 'chest' ? tx('公益金', 'Chest') : tx('机会', 'Chance')}</span>
           <b>？</b>
         </div>
       )}
-      {props.card && props.cardFace !== 'back' && (
+      {!props.money && props.card && props.cardFace !== 'back' && (
         <blockquote className={`drawn is-open ${props.card.deck}`}>
           <span>{props.card.deck === 'chance' ? tx('机会', 'Chance') : tx('公益金', 'Chest')}</span>
           {lang === 'en' && props.card.en ? props.card.en : props.card.text}
@@ -567,6 +597,8 @@ function Center(props: {
           )}
           {game.phase === 'auction' && auction && (
             <div className="auction">
+              {auction.sellerId && <p className="quiet">{tx(`${game.players.find((p) => p.id === auction.sellerId)?.name} 正在拍卖房产筹款，所得归卖家。`, `${game.players.find((p) => p.id === auction.sellerId)?.name} is selling this property. Proceeds go to the seller.`)}</p>}
+              {auction.sellerId && game.plots[auction.spaceId]?.mortgaged && <p className="quiet">{tx('此房产已抵押，买家另付抵押额 10% 的利息，抵押状态保留。', 'This property stays mortgaged. The buyer also pays 10% of its mortgage value in interest.')}</p>}
               <p>{place} · {tx('当前出价', 'High bid:')} {auction.highBid ? usd(auction.highBid) : tx('暂无出价', 'no bids yet')}</p>
               {game.players.find((p) => p.id === auction.turnId)?.controllerId === youId ? (
                 <div className="join-row">
@@ -591,7 +623,7 @@ function Center(props: {
                 <>
                   <button className="solid" type="button" disabled={(debtor?.money || 0) < debt.amount} onClick={() => props.onAction({ type: 'pay-debt' })}>{tx('支付欠款', 'Pay')}</button>
                   <button type="button" onClick={() => props.onAction({ type: 'bankrupt' })}>{tx('申请破产', 'Declare bankruptcy')}</button>
-                  <p className="quiet">{tx('现金不足时，可在右侧出售建筑或抵押房产。', 'Need cash? Sell buildings or mortgage properties in the side panel.')}</p>
+                  <p className="quiet">{tx('可在右侧选择自己的房产，出售建筑、抵押或拍卖筹款；是否破产由你决定。', 'Select your properties in the side panel to sell buildings, mortgage, or auction them. You decide whether to declare bankruptcy.')}</p>
                 </>
               )}
             </div>
@@ -599,7 +631,7 @@ function Center(props: {
           {game.trade && game.players.some((p) => p.controllerId === youId && (p.id === game.trade?.from || p.id === game.trade?.to)) && (
             <TradeNotice game={game} youId={youId} onAction={props.onAction} />
           )}
-          {offline && (
+          {offline && game.phase !== 'debt' && (
             <button type="button" onClick={() => props.onAction({ type: 'skip-offline' })}>{tx('玩家已掉线，跳过本回合', 'Skip offline player')}</button>
           )}
         </div>

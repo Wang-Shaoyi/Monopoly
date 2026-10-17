@@ -3,6 +3,14 @@ import { spacesForMap } from './board.ts'
 import type { Lang } from './board.ts'
 
 const EXACT: Record<string, string> = {
+  "本局游戏已结束": "This game has ended.",
+  "只有欠款玩家可以拍卖房产筹款": "Only the player who owes money can auction their properties to raise cash.",
+  "只能拍卖自己的房产": "You can only auction properties you own.",
+  "拍卖前，请先卖掉该颜色组的所有建筑": "Sell all buildings in this color group before auctioning a property.",
+  "不能竞拍自己的房产": "You cannot bid on your own property.",
+  "现金不足，无法支付该出价及抵押利息": "You need enough cash to cover your bid and any mortgage interest.",
+  "是否破产须由欠款玩家自行决定": "The player who owes money must decide whether to declare bankruptcy.",
+  "拍卖中的房产不能更改抵押状态": "A property's mortgage status cannot change during its auction.",
   "Shibagy的捣蛋费": "Shibagy's mischief fee",
   "当前无法发动跳跃技能": "Tutu cannot hop right now.",
   "找不到这位玩家": "Player not found",
